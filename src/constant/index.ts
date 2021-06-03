@@ -11,7 +11,7 @@ export enum ChainId {
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const currentChainId = Number(
-  process.env.NEXT_PUBLIC_CHAIN_ID || 4
+  process.env.NEXT_PUBLIC_CHAIN_ID || 56
 ) as ChainId;
 
 const MegaByte = 1024 * 1024;

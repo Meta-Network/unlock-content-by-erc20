@@ -54,7 +54,11 @@ export const TOKENS: {
   },
   [ChainId.GÖRLI]: { WETH: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6' },
   [ChainId.KOVAN]: { WETH: '0xd0A1E359811322d97991E03f863a0C30C2cF029C' },
-  [ChainId.BSC_MAINNET]: { WBNB: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c' },
+  [ChainId.BSC_MAINNET]: { 
+    WBNB: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
+    USDT: '0x55d398326f99059ff775485246999027b3197955',
+    BUSD: '0xe9e7cea3dedca5984780bafc599bd69add087d56'
+  },
   [ChainId.BSC_TESTNET]: {
     WBNB: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
     USDT: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
