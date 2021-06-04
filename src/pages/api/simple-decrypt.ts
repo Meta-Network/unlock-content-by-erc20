@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import { decrypt, encrypt, getRandomSecretKey } from "../../encryption"
-import { EncryptedSnippet, Snippet } from "../../typing"
-import { uploadToPublic } from "../../utils/ipfs"
+import { decrypt } from "../../encryption"
+import { EncryptedSnippet } from "../../typing"
 
 type SimpleDecryptBody = {
     encrypted: EncryptedSnippet;
