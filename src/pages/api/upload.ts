@@ -18,8 +18,8 @@ async function upload(req: NextApiRequest, res: NextApiResponse<UploadReturn>) {
         timestamp: Date.now(),
         title,
         version: '20210604',
-        owner: checksumedAuthorWallet,
     } as Snippet), privateKey)
+    encrypted.owner = checksumedAuthorWallet;
     const hash = await uploadToPublic(JSON.stringify(encrypted))
     return res.status(201).json({ encrypted, hash, privateKey })
 }
