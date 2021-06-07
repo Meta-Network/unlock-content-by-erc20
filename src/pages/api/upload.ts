@@ -1,3 +1,4 @@
+import { utils } from "ethers"
 import { NextApiRequest, NextApiResponse } from "next"
 import { encrypt, getRandomSecretKey } from "../../encryption"
 import { EncryptedSnippet, Snippet } from "../../typing"
@@ -9,12 +10,15 @@ type UploadReturn = {
 
 async function upload(req: NextApiRequest, res: NextApiResponse<UploadReturn>) {
     const privateKey = getRandomSecretKey()
-    const { content, title } = req.body
+    // @todo: use sig to replace the `owner`
+    const { content, title, owner } = req.body
+    const checksumedAuthorWallet = utils.getAddress(owner);
     const encrypted = encrypt(JSON.stringify({
         content,
         timestamp: Date.now(),
         title,
-        version: '20210604'
+        version: '20210604',
+        owner: checksumedAuthorWallet,
     } as Snippet), privateKey)
     const hash = await uploadToPublic(JSON.stringify(encrypted))
     return res.status(201).json({ encrypted, hash, privateKey })

@@ -3,6 +3,7 @@ export type Snippet = {
     title?: string;
     content: string;
     timestamp: number;
+    owner: string;
 }
 
 export type Requirement = {
