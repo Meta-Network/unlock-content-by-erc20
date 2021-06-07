@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { recoverTypedSignature } from "eth-sig-util";
 import { utils } from 'ethers';
+import { getEIP712Profile } from '../../constant/EIP712Domain';
 
 type Data = {
   content: string
@@ -44,12 +45,7 @@ export default (req: NextApiRequest, res: NextApiResponse<{ message: string } | 
         ],
       },
       primaryType: 'Request',
-      domain: {
-        name: 'Ether Mail',
-        version: '1',
-        chainId: 56,
-        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
-      },
+      domain: getEIP712Profile(56),
       message: {
           token,
           challenge

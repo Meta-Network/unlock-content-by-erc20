@@ -4,6 +4,7 @@ import { Requirement } from "../../../typing";
 import { recoverTypedSignature } from "eth-sig-util";
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { utils } from "ethers";
+import { getEIP712Profile } from "../../../constant/EIP712Domain";
 
 const KVClient = axios.create({
   baseURL: process.env.CLOUDFLARE_WORKER_KV_API,
@@ -26,12 +27,7 @@ function recoverFromSig(chainId: number, token: string, amount: string, sig: str
         ],
       },
       primaryType: 'Requirement',
-      domain: {
-        name: 'Ether Mail',
-        version: '1',
-        chainId,
-        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
-      },
+      domain: getEIP712Profile(chainId),
       message: {
           token,
           amount

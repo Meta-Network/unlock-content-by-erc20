@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { useCallback, useMemo } from 'react'
 import { useWallet } from 'use-wallet'
 import { currentSupportedTokens } from '../constant/contracts'
+import { getEIP712Profile } from '../constant/EIP712Domain'
 import { useSigner } from '../hooks/useSigner'
 import styles from '../styles/Home.module.css'
 
@@ -13,12 +14,7 @@ export default function Home() {
   const signMsg = useCallback(async () => {
     if (!isSignerReady(signer)) return;
 
-    const sig = await signer._signTypedData({
-          name: 'Ether Mail',
-          version: '1',
-          chainId: 56,
-          verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
-      },
+    const sig = await signer._signTypedData(getEIP712Profile(56),
       {
         Request: [
             { name: 'token', type: 'address' },
