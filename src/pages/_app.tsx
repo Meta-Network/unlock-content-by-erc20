@@ -1,5 +1,5 @@
 import '../styles/globals.css'
-import Providers from "./_provider";
+import Providers from "../components/_provider";
 import styled from "styled-components";
 import type { AppProps } from 'next/app'
 
