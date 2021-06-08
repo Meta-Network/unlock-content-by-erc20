@@ -1,19 +1,21 @@
 export type Snippet = {
-    version: '20210604';
-    title?: string;
-    content: string;
-    timestamp: number;
-}
+  version: "20210604";
+  title?: string;
+  content: string;
+  timestamp: number;
+};
 
 export type Requirement = {
-    token: string;
-    networkId: number;
-    amount: string; // should be good to parsed into BigNumber
-}
+  token: string;
+  networkId: number;
+  amount: string; // should be good to parsed into BigNumber
+};
 
+export type UnlockedSnippet = Snippet & { owner: string };
+export type SnipperForShowing = UnlockedSnippet;
 
 export type EncryptedSnippet = {
-    iv: string;
-    content: string;
-    owner: string;
-}
+  iv: string;
+  content: string;
+  owner: string;
+};

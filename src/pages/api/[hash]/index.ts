@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getEIP712Profile } from "../../../constant/EIP712Domain";
 import { WorkerKV } from "../../../constant/kvclient";
 import { decrypt } from "../../../encryption";
-import { EncryptedSnippet, Snippet } from "../../../typing";
+import { EncryptedSnippet, Snippet, UnlockedSnippet } from "../../../typing";
 import { ipfsCat } from "../../../utils/ipfs";
 
 function recoverFromSig(
@@ -42,8 +42,6 @@ function recoverFromSig(
 async function getPreviewOf(hash: string, res: NextApiResponse<any>) {
   return getUnlockedContent(hash, "", 0, "", res);
 }
-
-type UnlockedSnippet = Snippet & { owner: string };
 
 async function getUnlockedContent(
   hash: string,
