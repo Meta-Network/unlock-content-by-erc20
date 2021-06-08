@@ -1,6 +1,7 @@
 import React from "react"
 import { UseWalletProvider } from 'use-wallet'
 import { RecoilRoot, useRecoilState } from "recoil"
+import { GeistProvider, CssBaseline } from '@geist-ui/react'
 import { chainIdState } from "../stateAtoms/chainId.atom"
 
 const UseWalletProviderWithState: React.FC = ({ children }) => {
@@ -19,7 +20,10 @@ const UseWalletProviderWithState: React.FC = ({ children }) => {
 const Providers: React.FC = ({ children }) => (
     <RecoilRoot>
         <UseWalletProviderWithState>
-            {children}
+            <GeistProvider>
+                <CssBaseline />
+                {children}
+            </GeistProvider>
         </UseWalletProviderWithState>
     </RecoilRoot>
 )
