@@ -1,74 +1,82 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import axios from "axios";
-import { Requirement } from "../../../typing";
 import { recoverTypedSignature } from "eth-sig-util";
-import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
+import { BigNumber } from "@ethersproject/bignumber";
 import { utils } from "ethers";
 import { getEIP712Profile } from "../../../constant/EIP712Domain";
 import { WorkerKV } from "../../../constant/kvclient";
 
-
-
-function recoverFromSig(chainId: number, token: string, amount: string, sig: string) {
+function recoverFromSig(
+  chainId: number,
+  token: string,
+  amount: string,
+  sig: string
+) {
   const recoveredWallet = recoverTypedSignature({
     data: {
       types: {
         EIP712Domain: [
-          {name:"name",type:"string"},
-          {name:"version",type:"string"},
-          {name:"chainId",type:"uint256"},
-          {name:"verifyingContract",type:"address"}
+          { name: "name", type: "string" },
+          { name: "version", type: "string" },
+          { name: "chainId", type: "uint256" },
+          { name: "verifyingContract", type: "address" },
         ],
         Requirement: [
-          { name: 'token', type: 'address' },
-          { name: 'amount', type: 'uint256' },
+          { name: "token", type: "address" },
+          { name: "amount", type: "uint256" },
         ],
       },
-      primaryType: 'Requirement',
+      primaryType: "Requirement",
       domain: getEIP712Profile(chainId),
       message: {
-          token,
-          amount
-      }
+        token,
+        amount,
+      },
     },
-    sig 
-  })
+    sig,
+  });
   return utils.getAddress(recoveredWallet);
 }
 
 async function getRequirement(hash: string, res: NextApiResponse) {
   try {
-    const data = await WorkerKV.getRequirement(hash)
-    if (data) res.status(200).json({ requirement: data })
-    else res.status(404).json({ message: "Not found" })
+    const data = await WorkerKV.getRequirement(hash);
+    if (data) res.status(200).json({ requirement: data });
+    else res.status(404).json({ message: "Not found" });
   } catch (error) {
-    res.status(404).json({ message: "Not found" })
+    res.status(404).json({ message: "Not found" });
   }
 }
-async function setRequirement(hash: string, body: any, res: NextApiResponse<any>) {
-    const { chainId, token, amount, sig } = body
-    if (BigNumber.from(amount).eq(0)) {
-      return res.status(400).json({ message: 'Use DELETE instead' })
-    }
-    const signer = recoverFromSig(Number(chainId), token, amount, sig);
-    // @todo: check permission with `signer` etc.
+async function setRequirement(
+  hash: string,
+  body: any,
+  res: NextApiResponse<any>
+) {
+  const { chainId, token, amount, sig } = body;
+  if (BigNumber.from(amount).eq(0)) {
+    return res.status(400).json({ message: "Use DELETE instead" });
+  }
+  const signer = recoverFromSig(Number(chainId), token, amount, sig);
+  // @todo: check permission with `signer` etc.
 
-
-    const success = await WorkerKV.setRequirement(hash, body)
-    if (success) res.status(201).json({ message: 'ok' })
-    else res.status(400).json({ message: 'Unknown error' })
+  const success = await WorkerKV.setRequirement(hash, body);
+  if (success) res.status(201).json({ message: "ok" });
+  else res.status(400).json({ message: "Unknown error" });
 }
-async function removeRequirement(hash: string, body: any, res: NextApiResponse<any>) {
-    const { chainId, token, amount, sig } = body
-    if (BigNumber.from(amount).gt(0)) {
-      return res.status(400).json({ message: 'Use PUT instead' })
-    }
-    const signer = recoverFromSig(Number(chainId), token, amount, sig);
-    // @todo: check permission with `signer` etc.
+async function removeRequirement(
+  hash: string,
+  body: any,
+  res: NextApiResponse<any>
+) {
+  const { chainId, token, amount, sig } = body;
+  if (BigNumber.from(amount).gt(0)) {
+    return res.status(400).json({ message: "Use PUT instead" });
+  }
+  const signer = recoverFromSig(Number(chainId), token, amount, sig);
+  // @todo: check permission with `signer` etc.
 
-    const success = await WorkerKV.removeRequirement(hash)
-    if (success) res.status(201).json({ message: 'ok' })
-    else res.status(400).json({ message: 'Unknown error' })
+  const success = await WorkerKV.removeRequirement(hash);
+  if (success) res.status(201).json({ message: "ok" });
+  else res.status(400).json({ message: "Unknown error" });
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
