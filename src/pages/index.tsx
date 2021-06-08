@@ -1,18 +1,24 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useWallet } from 'use-wallet'
-import { Button } from "@geist-ui/react";
+import axios from "axios";
+import { Button, Input, Textarea } from "@geist-ui/react";
 import { currentSupportedTokens } from '../constant/contracts'
 import { getEIP712Profile } from '../constant/EIP712Domain'
 import { useSigner } from '../hooks/useSigner'
 import styles from '../styles/Home.module.css'
 import { useRecoilState } from 'recoil';
 import { chainIdState } from '../stateAtoms/chainId.atom';
+import { EncryptedSnippet } from '../typing';
 
 export default function Home() {
   const wallet = useWallet()
   const [chainId] = useRecoilState(chainIdState)
+
+  const [contentInput, setInputContent] = useState('')
+
+  const [uploadedHash, setUploadedHash] = useState('')
 
   const { signer, isSignerReady } = useSigner()
 
@@ -34,6 +40,15 @@ export default function Home() {
     console.info('sig', sig)
 
   }, [signer])
+
+  const encryptAndUpload = useCallback(async () => {
+    const { data } = await axios.post<{ encrypted: EncryptedSnippet, hash: string, privateKey: string  }>('/api/upload', {
+      content: contentInput,
+      owner: wallet.account
+    })
+    setUploadedHash(data.hash)
+    setInputContent('')
+  }, [contentInput, wallet])
 
   return (
     <div className={styles.container}>
@@ -57,9 +72,15 @@ export default function Home() {
             {/* <button onClick={() => wallet.connect('walletconnect')}>Wallet Connect</button> */}
           </>
           : 
-          <>
-            <Button onClick={() => signMsg() }>Sign</Button>
-            <Button onClick={() => wallet.reset()}>Disconnect</Button>
+            <>
+              <Textarea placeholder="请输入内容......" onChange={(e) => { setInputContent(e.target.value) }} />
+              <Button onClick={() => encryptAndUpload()} >Upload</Button>
+
+              {uploadedHash && <a href={`https://ipfs.fleek.co/ipfs/${uploadedHash}`} target="_blank">Go IPFS to See RAW</a>}
+              {uploadedHash && <a href={`/${uploadedHash}`}>Decrypt and See</a>}
+
+              <Button onClick={() => signMsg() }>Sign</Button>
+              <Button onClick={() => wallet.reset()}>Disconnect</Button>
           </>
         }
 
