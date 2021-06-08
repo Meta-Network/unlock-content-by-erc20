@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
+import { Row, Col, Text, Container } from "@geist-ui/react";
 import { useBoolean } from "ahooks";
 import axios from "axios";
 import { SnipperForShowing } from "../../typing";
@@ -27,9 +28,24 @@ export default function Post() {
     if (isLoadingError) return <p>Bad hash, please check the url and try again.</p>
     if (!content) return <p>Loading</p>
 
-    return <div className="div">
-        <h1 className="title">{content.title}</h1>
-        <h4 className="subtitle">{content.owner} @ { new Date(content.timestamp).toLocaleString() }</h4>
-        <p>{content.content}</p>
-    </div>
+    return <>
+        <Text h1>{content.title}</Text>
+        <Row>
+            <Col>
+                <Text style={{ color: '#aaa' }}>
+                    {content.owner} at {new Date(content.timestamp).toLocaleString()}
+                </Text>
+            </Col>
+            <Col>
+                <Text><a href={`https://ipfs.fleek.co/ipfs/${hash}`} target="_blank"> RAW on IPFS</a></Text>
+            </Col>
+        </Row>
+        <Container>
+                <Text
+                    // dangerouslySetInnerHTML={{ __html: .content }}
+            >
+                {content.content}
+                </Text>
+        </Container>
+    </>
 }
