@@ -1,19 +1,26 @@
 import React from "react"
 import { UseWalletProvider } from 'use-wallet'
-import { RecoilRoot } from "recoil"
+import { RecoilRoot, useRecoilState } from "recoil"
+import { chainIdState } from "../stateAtoms/chainId.atom"
+
+const UseWalletProviderWithState: React.FC = ({ children }) => {
+    const [chainId] = useRecoilState(chainIdState)
+    return (
+        <UseWalletProvider
+            chainId={chainId}
+            connectors={{
+                injected: {}
+            }}>
+            {children}
+        </UseWalletProvider>
+    )
+}
 
 const Providers: React.FC = ({ children }) => (
-    <UseWalletProvider
-        chainId={56}
-        connectors={{
-            injected: {},
-            walletconnect: {
-                rpcUrl: 'https://bsc-dataseed.binance.org/',
-            },
-        }}>
-        <RecoilRoot>
+    <RecoilRoot>
+        <UseWalletProviderWithState>
             {children}
-        </RecoilRoot>
-    </UseWalletProvider>
+        </UseWalletProviderWithState>
+    </RecoilRoot>
 )
 export default Providers

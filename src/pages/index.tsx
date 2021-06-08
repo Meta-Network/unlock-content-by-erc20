@@ -45,10 +45,11 @@ export default function Home() {
 
         {
           !isSignerReady(signer) ? 
-          <>
+            <>
+            
             <p>Connect Wallet by</p>
             <button onClick={() => wallet.connect('injected')}>MetaMask</button>
-            <button onClick={() => wallet.connect('walletconnect')}>Wallet Connect</button>
+            {/* <button onClick={() => wallet.connect('walletconnect')}>Wallet Connect</button> */}
           </>
           : 
           <>
