@@ -5,11 +5,9 @@ import { recoverTypedSignature } from "eth-sig-util";
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { utils } from "ethers";
 import { getEIP712Profile } from "../../../constant/EIP712Domain";
+import { WorkerKV } from "../../../constant/kvclient";
 
-const KVClient = axios.create({
-  baseURL: process.env.CLOUDFLARE_WORKER_KV_API,
-  headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_WORKER_KV_ACCESSTOKEN}` },
-});
+
 
 function recoverFromSig(chainId: number, token: string, amount: string, sig: string) {
   const recoveredWallet = recoverTypedSignature({
@@ -39,9 +37,13 @@ function recoverFromSig(chainId: number, token: string, amount: string, sig: str
 }
 
 async function getRequirement(hash: string, res: NextApiResponse) {
-    const { data } = await KVClient.get<{ data: Requirement | null }>(`/SNIPPETS_REQUIREMENT/${hash}`)
-    if (!data.data) res.status(404).json({ message: "Not found" })
-    else res.status(200).json({ requirement: data.data })
+  try {
+    const data = await WorkerKV.getRequirement(hash)
+    if (data) res.status(200).json({ requirement: data })
+    else res.status(404).json({ message: "Not found" })
+  } catch (error) {
+    res.status(404).json({ message: "Not found" })
+  }
 }
 async function setRequirement(hash: string, body: any, res: NextApiResponse<any>) {
     const { chainId, token, amount, sig } = body
@@ -52,9 +54,8 @@ async function setRequirement(hash: string, body: any, res: NextApiResponse<any>
     // @todo: check permission with `signer` etc.
 
 
-
-    const { data } = await KVClient.put<{ success: boolean }>(`/SNIPPETS_REQUIREMENT/${hash}`, body)
-    if (data.success) res.status(201).json({ message: 'ok' })
+    const success = await WorkerKV.setRequirement(hash, body)
+    if (success) res.status(201).json({ message: 'ok' })
     else res.status(400).json({ message: 'Unknown error' })
 }
 async function removeRequirement(hash: string, body: any, res: NextApiResponse<any>) {
@@ -65,8 +66,8 @@ async function removeRequirement(hash: string, body: any, res: NextApiResponse<a
     const signer = recoverFromSig(Number(chainId), token, amount, sig);
     // @todo: check permission with `signer` etc.
 
-    const { data } = await KVClient.delete(`/SNIPPETS_REQUIREMENT/${hash}`)
-    if (data.success) res.status(201).json({ message: 'ok' })
+    const success = await WorkerKV.removeRequirement(hash)
+    if (success) res.status(201).json({ message: 'ok' })
     else res.status(400).json({ message: 'Unknown error' })
 }
 

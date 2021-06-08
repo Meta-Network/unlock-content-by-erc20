@@ -18,7 +18,7 @@ export class WorkerKV {
         const { data } = await KVClient.put<{ success: boolean }>(`/SNIPPETS_REQUIREMENT/${hash}`, body)
         return data.success
     }
-    static async removeRequirement(hash: string) {
+    static async removeRequirement(hash: string): Promise<boolean> {
         const { data } = await KVClient.delete(`/SNIPPETS_REQUIREMENT/${hash}`)
         return data.success
     }
