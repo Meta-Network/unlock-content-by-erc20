@@ -3,6 +3,7 @@ import { UseWalletProvider } from 'use-wallet'
 import { RecoilRoot, useRecoilState } from "recoil"
 import { GeistProvider, CssBaseline } from '@geist-ui/react'
 import { chainIdState } from "../stateAtoms/chainId.atom"
+import Listener from "./_listener"
 
 const UseWalletProviderWithState: React.FC = ({ children }) => {
     const [chainId] = useRecoilState(chainIdState)
@@ -20,6 +21,7 @@ const UseWalletProviderWithState: React.FC = ({ children }) => {
 const Providers: React.FC = ({ children }) => (
     <RecoilRoot>
         <UseWalletProviderWithState>
+            <Listener />
             <GeistProvider>
                 <CssBaseline />
                 {children}

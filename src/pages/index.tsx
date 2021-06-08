@@ -2,13 +2,18 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { useCallback, useMemo } from 'react'
 import { useWallet } from 'use-wallet'
+import { Button } from "@geist-ui/react";
 import { currentSupportedTokens } from '../constant/contracts'
 import { getEIP712Profile } from '../constant/EIP712Domain'
 import { useSigner } from '../hooks/useSigner'
 import styles from '../styles/Home.module.css'
+import { useRecoilState } from 'recoil';
+import { chainIdState } from '../stateAtoms/chainId.atom';
 
 export default function Home() {
   const wallet = useWallet()
+  const [chainId] = useRecoilState(chainIdState)
+
   const { signer, isSignerReady } = useSigner()
 
   const signMsg = useCallback(async () => {
@@ -46,15 +51,15 @@ export default function Home() {
         {
           !isSignerReady(signer) ? 
             <>
-            
+            <p>Connected to ChainId { chainId }</p>
             <p>Connect Wallet by</p>
-            <button onClick={() => wallet.connect('injected')}>MetaMask</button>
+            <Button onClick={() => wallet.connect('injected')}>MetaMask</Button>
             {/* <button onClick={() => wallet.connect('walletconnect')}>Wallet Connect</button> */}
           </>
           : 
           <>
-            <button onClick={() => signMsg() }>Sign</button>
-            <button onClick={() => wallet.reset()}>Disconnect</button>
+            <Button onClick={() => signMsg() }>Sign</Button>
+            <Button onClick={() => wallet.reset()}>Disconnect</Button>
           </>
         }
 
