@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { Row, Col, Text, Container } from "@geist-ui/react";
 import { useBoolean } from "ahooks";
 import axios from "axios";
@@ -40,12 +41,11 @@ export default function Post() {
                 <Text><a href={`https://ipfs.fleek.co/ipfs/${hash}`} target="_blank"> RAW on IPFS</a></Text>
             </Col>
         </Row>
-        <Container>
-                <Text
-                    // dangerouslySetInnerHTML={{ __html: .content }}
-            >
-                {content.content}
-                </Text>
-        </Container>
+        <div className="content">
+                <ReactMarkdown>
+                    {content.content}
+                </ReactMarkdown>
+        </div>
+
     </>
 }
