@@ -30,6 +30,15 @@ export type EncryptedSnippet = {
   owner: string;
 };
 
+export type StandardTokenProfile = {
+  chainId: number;
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  logoURI: string;
+};
+
 export type StandardTokenList = {
   name: string;
   timestamp: string;
@@ -41,12 +50,5 @@ export type StandardTokenList = {
   tags: Record<string, any>;
   logoURI: string;
   keywords: string;
-  tokens: Array<{
-    chainId: number;
-    address: string;
-    name: string;
-    symbol: string;
-    decimals: number;
-    logoURI: string;
-  }>;
+  tokens: Array<StandardTokenProfile>;
 };

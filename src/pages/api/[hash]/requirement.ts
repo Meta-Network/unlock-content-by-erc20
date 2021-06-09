@@ -55,7 +55,7 @@ async function setRequirement(
   if (BigNumber.from(amount).eq(0)) {
     return res.status(400).json({ message: "Use DELETE instead" });
   }
-  const signer = recoverFromSig(Number(chainId), token, amount, sig);
+  // const signer = recoverFromSig(Number(chainId), token, amount, sig);
   // @todo: check permission with `signer` etc.
 
   const success = await WorkerKV.setRequirement(hash, body);
@@ -67,11 +67,8 @@ async function removeRequirement(
   body: any,
   res: NextApiResponse<any>
 ) {
-  const { chainId, token, amount, sig } = body;
-  if (BigNumber.from(amount).gt(0)) {
-    return res.status(400).json({ message: "Use PUT instead" });
-  }
-  const signer = recoverFromSig(Number(chainId), token, amount, sig);
+  const { chainId, token, sig } = body;
+  // const signer = recoverFromSig(Number(chainId), token, amount, sig);
   // @todo: check permission with `signer` etc.
 
   const success = await WorkerKV.removeRequirement(hash);
