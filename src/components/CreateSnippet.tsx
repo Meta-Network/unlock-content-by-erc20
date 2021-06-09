@@ -6,6 +6,7 @@ import { Editor } from '@toast-ui/react-editor';
 import { UploadReturn } from "../typing";
 import { useWallet } from "use-wallet";
 import { Button } from "@geist-ui/react";
+import { useBoolean } from "ahooks";
 
 type CreateSnippetParams = {
     // callback
@@ -14,15 +15,18 @@ type CreateSnippetParams = {
 
 export default function CreateSnippet({ onSent }: CreateSnippetParams) {
     const wallet = useWallet()
+    const [ isSending, { setFalse: enableSendBtn, setTrue: disableSendBtn } ] = useBoolean(false)
     const editorRef = useRef<Editor>() as React.MutableRefObject<Editor>
 
     const send = useCallback(async () => {
+        disableSendBtn()
         const contentInput = editorRef.current?.getInstance().getMarkdown()
         const { data } = await axios.post<UploadReturn>('/api/upload', {
             content: contentInput,
             owner: wallet.account
         })
         onSent(data)
+        enableSendBtn()
     }, [editorRef])
 
     return <>
@@ -35,7 +39,7 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
         ref={editorRef}
         />
         <div className="exported-md">
-            <Button onClick={() => send()}>Send</Button>
+            <Button onClick={() => send()} loading={isSending} disabled={isSending}>Send</Button>
         </div>
     </>
 }
