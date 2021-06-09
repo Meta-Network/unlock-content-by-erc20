@@ -1,10 +1,21 @@
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import ReactMarkdown from "react-markdown";
-import { Row, Col, Text, Container } from "@geist-ui/react";
+import { Row, Col, Text, Tooltip } from "@geist-ui/react";
 import { useBoolean } from "ahooks";
 import axios from "axios";
 import { SnipperForShowing } from "../../typing";
+import styled from "styled-components";
+
+dayjs.extend(relativeTime);
+
+const DetailBar = styled.div`
+* {
+    margin: 4px;
+}
+`
 
 export default function Post() {
     const router = useRouter();
@@ -31,16 +42,19 @@ export default function Post() {
 
     return <>
         <Text h1>{content.title}</Text>
-        <Row>
-            <Col>
-                <Text style={{ color: '#aaa' }}>
-                    {content.owner} at {new Date(content.timestamp).toLocaleString()}
-                </Text>
-            </Col>
-            <Col>
-                <Text><a href={`https://ipfs.fleek.co/ipfs/${hash}`} target="_blank"> RAW on IPFS</a></Text>
-            </Col>
-        </Row>
+        <DetailBar>
+                <Tooltip text={content.owner} placement="bottomStart" >
+                    <Text style={{ color: '#aaa' }} size={12}>
+                        {content.owner.slice(0, 6)}...{content.owner.slice(-4)} 
+                    </Text>
+                </Tooltip>
+                <Tooltip text={ new Date(content.timestamp).toLocaleString() }  placement="bottom" >
+                    <Text style={{ color: '#aaa' }} size={12}>
+                        {dayjs().to(content.timestamp)}
+                    </Text>
+                </Tooltip>
+                <Text span size={12}><a href={`https://ipfs.fleek.co/ipfs/${hash}`} target="_blank"> RAW on IPFS</a></Text>
+        </DetailBar>
         <div className="content">
                 <ReactMarkdown>
                     {content.content}
