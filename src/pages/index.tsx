@@ -19,7 +19,7 @@ export default function Home() {
   const wallet = useWallet()
   const [chainId] = useRecoilState(chainIdState)
 
-  const [uploadedHash, setUploadedHash] = useState('QmdzUkze3W6AopohtKUtNWqpRhfTrMTGGCFBFctoihdMvd')
+  const [uploadedHash, setUploadedHash] = useState('')
 
   const { signer, isSignerReady } = useSigner()
 
