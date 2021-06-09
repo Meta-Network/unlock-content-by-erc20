@@ -8,7 +8,6 @@ import { axiosSWRFetcher } from "../../utils";
 import TokenSelector from "../../components/TokenSelector";
 import { Requirement, StandardTokenProfile } from "../../typing";
 import { utils } from "ethers";
-import { WorkerKV } from "../../constant/kvclient";
 import { useRouter } from "next/router";
 
 const SetRequirementContainer = styled.div``

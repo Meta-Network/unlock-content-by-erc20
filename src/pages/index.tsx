@@ -10,17 +10,16 @@ import { useSigner } from '../hooks/useSigner'
 import styles from '../styles/Home.module.css'
 import { useRecoilState } from 'recoil';
 import { chainIdState } from '../stateAtoms/chainId.atom';
-import SnippetCreated from '../components/SnippetCreated';
-
 // dynamic load
 const CreateSnippet = dynamic(() => import("../components/CreateSnippet"), { ssr: false }) ;
+const SnippetCreated = dynamic(() => import('../components/SnippetCreated'), { ssr: false });
 
 
 export default function Home() {
   const wallet = useWallet()
   const [chainId] = useRecoilState(chainIdState)
 
-  const [uploadedHash, setUploadedHash] = useState('')
+  const [uploadedHash, setUploadedHash] = useState('QmdzUkze3W6AopohtKUtNWqpRhfTrMTGGCFBFctoihdMvd')
 
   const { signer, isSignerReady } = useSigner()
 

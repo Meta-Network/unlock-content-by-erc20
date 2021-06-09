@@ -1,6 +1,7 @@
 import Head from 'next/head'
+import NextLink from "next/link";
 import React, {  } from 'react'
-import { Button, Text } from "@geist-ui/react";
+import { Button, Text, useClipboard, useToasts } from "@geist-ui/react";
 import styles from '../styles/Home.module.css'
 import styled from 'styled-components';
 
@@ -16,7 +17,10 @@ const ActionsCard = styled.div`
     }
 `
 
-export default function SnippetCreated({ uploadedHash , ...params}: Params) {
+export default function SnippetCreated({ uploadedHash, ...params }: Params) {
+  const [, setToast] = useToasts()
+  const { copy } = useClipboard()
+  const fullUrl = `https://${window.location.hostname}/${uploadedHash}/`
     return <div className={styles.container}>
       <Head>
         <title>Unlock Content by ERC20</title>
@@ -32,8 +36,16 @@ export default function SnippetCreated({ uploadedHash , ...params}: Params) {
           You can share your snippet now or <a href={`/${uploadedHash}`}>just have a look 👀</a>
         </Text>
         <ActionsCard>
-          <Button shadow type="secondary">🔒 Lock with requirement</Button>
-          <Button shadow auto> 🔗 Copy Link & Share </Button>
+          <NextLink href={`/${uploadedHash}/requirement`}>
+            <Button shadow type="secondary">🔒 Lock with requirement</Button>
+          </NextLink>
+          <Button shadow auto onClick={() => {
+            copy(fullUrl)
+            setToast({
+              type: 'success',
+              text: 'Link copied, you can share it now.'
+            })
+          }}> 🔗 Copy Link & Share </Button>
           <Button shadow onClick={() => window.location.reload()} >🙋 Post another snippet</Button>
         </ActionsCard>
       </main>
