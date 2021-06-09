@@ -10,6 +10,7 @@ import { useSigner } from '../hooks/useSigner'
 import styles from '../styles/Home.module.css'
 import { useRecoilState } from 'recoil';
 import { chainIdState } from '../stateAtoms/chainId.atom';
+import SnippetCreated from '../components/SnippetCreated';
 
 // dynamic load
 const CreateSnippet = dynamic(() => import("../components/CreateSnippet"), { ssr: false }) ;
@@ -42,6 +43,10 @@ export default function Home() {
 
   }, [signer])
 
+  if (uploadedHash) {
+    return <SnippetCreated uploadedHash={uploadedHash} />
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -72,8 +77,8 @@ export default function Home() {
               {uploadedHash && <a href={`https://ipfs.fleek.co/ipfs/${uploadedHash}`} target="_blank">Go IPFS to See RAW</a>}
               {uploadedHash && <a href={`/${uploadedHash}`}>Decrypt and See</a>}
 
-              <Button onClick={() => signMsg() }>Sign</Button>
-              <Button onClick={() => wallet.reset()}>Disconnect</Button>
+              {/* <Button onClick={() => signMsg() }>Sign</Button>
+              <Button onClick={() => wallet.reset()}>Disconnect</Button> */}
           </>
         }
 
