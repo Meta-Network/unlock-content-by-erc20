@@ -1,6 +1,4 @@
 import axios from "axios";
-import { BigNumber } from "ethers";
-import { NextApiResponse } from "next";
 import { Requirement } from "../typing";
 
 export const KVClient = axios.create({
