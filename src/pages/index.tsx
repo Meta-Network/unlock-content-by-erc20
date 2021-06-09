@@ -1,22 +1,23 @@
 import Head from 'next/head'
+import dynamic from "next/dynamic";
 import Image from 'next/image'
-import { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useWallet } from 'use-wallet'
-import axios from "axios";
-import { Button, Input, Textarea } from "@geist-ui/react";
+import { Button, Text } from "@geist-ui/react";
 import { currentSupportedTokens } from '../constant/contracts'
 import { getEIP712Profile } from '../constant/EIP712Domain'
 import { useSigner } from '../hooks/useSigner'
 import styles from '../styles/Home.module.css'
 import { useRecoilState } from 'recoil';
 import { chainIdState } from '../stateAtoms/chainId.atom';
-import { EncryptedSnippet } from '../typing';
+
+// dynamic load
+const CreateSnippet = dynamic(() => import("../components/CreateSnippet"), { ssr: false }) ;
+
 
 export default function Home() {
   const wallet = useWallet()
   const [chainId] = useRecoilState(chainIdState)
-
-  const [contentInput, setInputContent] = useState('')
 
   const [uploadedHash, setUploadedHash] = useState('')
 
@@ -25,7 +26,7 @@ export default function Home() {
   const signMsg = useCallback(async () => {
     if (!isSignerReady(signer)) return;
 
-    const sig = await signer._signTypedData(getEIP712Profile(56),
+    const sig = await signer._signTypedData(getEIP712Profile(chainId),
       {
         Request: [
             { name: 'token', type: 'address' },
@@ -41,15 +42,6 @@ export default function Home() {
 
   }, [signer])
 
-  const encryptAndUpload = useCallback(async () => {
-    const { data } = await axios.post<{ encrypted: EncryptedSnippet, hash: string, privateKey: string  }>('/api/upload', {
-      content: contentInput,
-      owner: wallet.account
-    })
-    setUploadedHash(data.hash)
-    setInputContent('')
-  }, [contentInput, wallet])
-
   return (
     <div className={styles.container}>
       <Head>
@@ -59,9 +51,9 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Unlock Content by ERC20 Demo
-        </h1>
+        <Text h1>
+          Unlock with ERC20 Demo
+        </Text>
 
         {
           !isSignerReady(signer) ? 
@@ -73,8 +65,9 @@ export default function Home() {
           </>
           : 
             <>
-              <Textarea placeholder="请输入内容......" onChange={(e) => { setInputContent(e.target.value) }} />
-              <Button onClick={() => encryptAndUpload()} >Upload</Button>
+              <CreateSnippet onSent={(res) => {
+                setUploadedHash(res.hash)
+              }} />
 
               {uploadedHash && <a href={`https://ipfs.fleek.co/ipfs/${uploadedHash}`} target="_blank">Go IPFS to See RAW</a>}
               {uploadedHash && <a href={`/${uploadedHash}`}>Decrypt and See</a>}

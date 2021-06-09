@@ -1,29 +1,28 @@
-import { utils } from "ethers"
-import { NextApiRequest, NextApiResponse } from "next"
-import { WorkerKV } from "../../constant/kvclient"
-import { encrypt, getRandomSecretKey } from "../../encryption"
-import { EncryptedSnippet, Snippet } from "../../typing"
-import { uploadToPublic } from "../../utils/ipfs"
-
-type UploadReturn = { 
-    encrypted: EncryptedSnippet, hash: string, privateKey: string 
-}
+import { utils } from "ethers";
+import { NextApiRequest, NextApiResponse } from "next";
+import { WorkerKV } from "../../constant/kvclient";
+import { encrypt, getRandomSecretKey } from "../../encryption";
+import { EncryptedSnippet, Snippet, UploadReturn } from "../../typing";
+import { uploadToPublic } from "../../utils/ipfs";
 
 async function upload(req: NextApiRequest, res: NextApiResponse<UploadReturn>) {
-    const privateKey = getRandomSecretKey()
-    // @todo: use sig to replace the `owner`
-    const { content, title, owner } = req.body
-    const checksumedAuthorWallet = utils.getAddress(owner);
-    const encrypted = encrypt(JSON.stringify({
-        content,
-        timestamp: Date.now(),
-        title,
-        version: '20210604',
-    } as Snippet), privateKey)
-    encrypted.owner = checksumedAuthorWallet;
-    const hash = await uploadToPublic(JSON.stringify(encrypted))
-    await WorkerKV.setSecretKey(hash, privateKey);
-    return res.status(201).json({ encrypted, hash, privateKey })
+  const privateKey = getRandomSecretKey();
+  // @todo: use sig to replace the `owner`
+  const { content, title, owner } = req.body;
+  const checksumedAuthorWallet = utils.getAddress(owner);
+  const encrypted = encrypt(
+    JSON.stringify({
+      content,
+      timestamp: Date.now(),
+      title,
+      version: "20210604",
+    } as Snippet),
+    privateKey
+  );
+  encrypted.owner = checksumedAuthorWallet;
+  const hash = await uploadToPublic(JSON.stringify(encrypted));
+  await WorkerKV.setSecretKey(hash, privateKey);
+  return res.status(201).json({ encrypted, hash, privateKey });
 }
 
 export default upload;

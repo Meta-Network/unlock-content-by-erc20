@@ -11,6 +11,12 @@ export type Requirement = {
   amount: string; // should be good to parsed into BigNumber
 };
 
+export type UploadReturn = {
+  encrypted: EncryptedSnippet;
+  hash: string;
+  privateKey: string;
+};
+
 export type UnlockedSnippet = Snippet & { owner: string };
 export type SnipperForShowing = UnlockedSnippet;
 
