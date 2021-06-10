@@ -13,12 +13,17 @@ import { useRecoilValue } from "recoil";
 import { chainIdState } from "../../stateAtoms/chainId.atom";
 import { ChainIdToName } from "../../constant";
 import { ProfileCard } from "../../components/requirement/ProfileCard";
+import { useSigner } from "../../hooks/useSigner";
+import { getEIP712Profile } from "../../constant/EIP712Domain";
+import { useWallet } from "use-wallet";
 
 const SetRequirementContainer = styled.div``
 const BtnActions = styled.div``
 
 export default function SetRequirementPage() {
     const router = useRouter()
+    const wallet = useWallet()
+    const { signer, isSignerReady } = useSigner()
     const { hash } = router.query
     const targetChainId = useRecoilValue(chainIdState)
     const { data: currentRequirement, error } = useSWR(hash ? `/api/${hash}/requirement` : null, axiosSWRFetcher)
@@ -42,16 +47,30 @@ export default function SetRequirementPage() {
             alert('No token was selected, canceled.')
             return;
         }
-        // @todo: need sign
+        if (!isSignerReady(signer)) return;
+
+        const sig = await signer._signTypedData(getEIP712Profile(targetChainId),
+        {
+            Requirement: [
+                { name: "token", type: "address" },
+                { name: "amount", type: "uint256" },
+            ],
+        }, 
+        {
+            token: targetToken.address,
+            amount: minimumAmountToHodl
+        })
+
         await axios.put(`/api/${hash}/requirement`, {
             version: '20210609',
             type: 'hodl',
             networkId: targetChainId,
             token: targetToken?.address,
-            amount: minimumAmountToHodl.toString()
-        } as Requirement)
+            amount: minimumAmountToHodl.toString(),
+            sig,
+        })
         alert('Requirement is set, the update will be good in 2 min.')
-    }, [hash, targetToken, targetChainId, minimumAmountToHodl])
+    }, [hash, targetToken, targetChainId, minimumAmountToHodl, signer])
 
     const RmRequirement = useCallback(async () => {
         if (typeof hash !== 'string') return;
@@ -59,6 +78,13 @@ export default function SetRequirementPage() {
         mutate(`/api/${hash}/requirement`)
         alert('Requirement is removed, the update will be good in 2 min.')
     }, [hash])
+
+    if (wallet.status !== 'connected') {
+        return <SetRequirementContainer>
+            <Text h1>Connect wallet to continute</Text>
+            <Button onClick={() => wallet.connect('injected')}>Connect by MetaMask</Button>
+        </SetRequirementContainer>
+    }
 
     return <SetRequirementContainer>
         <Text h1>Set requirement to Unlock the snippet</Text>
