@@ -3,11 +3,18 @@ import { useCallback, useEffect, useState } from "react";
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ReactMarkdown from "react-markdown";
-import { Row, Col, Text, Tooltip } from "@geist-ui/react";
+import { Row, Col, Text, Tooltip, Button } from "@geist-ui/react";
 import { useBoolean } from "ahooks";
 import axios from "axios";
 import { SnipperForShowing } from "../../typing";
 import styled from "styled-components";
+import { useRecoilValue } from "recoil";
+import { chainIdState } from "../../stateAtoms/chainId.atom";
+import { axiosSWRFetcher } from "../../utils";
+import useSWR from "swr";
+import { useSigner } from "../../hooks/useSigner";
+import { getEIP712Profile } from "../../constant/EIP712Domain";
+import { useWallet } from "use-wallet";
 
 dayjs.extend(relativeTime);
 
@@ -17,28 +24,58 @@ const DetailBar = styled.div`
 }
 `
 
+const UnlockNotice = styled.div``
+
 export default function Post() {
     const router = useRouter();
+    const wallet = useWallet()
+    const { signer, isSignerReady } = useSigner()
     const { hash } = router.query
     const [content, setContent] = useState<null | SnipperForShowing>(null)
     const [isLoadingError, { setTrue: onLoadingError }] = useBoolean(false)
 
+    const [sig, setSig] = useState('')
+    const { data: reqD, error } = useSWR(hash ? `/api/${hash}/requirement` : null, axiosSWRFetcher)
+
     const fetchData = useCallback(async () => {
+        if (!isSignerReady(signer)) return;
         try {
-            const { data } = await axios.get('/api/' + hash)
+            const sig = await signer._signTypedData(getEIP712Profile(reqD.requirement.networkId),
+                {
+                    RequestUnlock: [
+                        { name: "token", type: "address" },
+                        { name: "hash", type: "string" },
+                    ],
+                }, 
+                {
+                    token: reqD.requirement.token,
+                    hash
+                }
+            )
+            const { data } = await axios.post('/api/' + hash, {
+                sig, chainId: reqD.requirement.networkId, token: reqD.requirement.token
+            })
             setContent(data)  
         } catch (error) {
             onLoadingError()
         }
-    }, [hash])
+    }, [signer, hash, reqD, sig])
 
-    useEffect(() => {
-        console.info('useEffect::hash', hash)
-        if (hash) fetchData()
-    }, [hash, fetchData])
+    // useEffect(() => {
+    //     console.info('useEffect::hash', hash)
+    //     if (hash) fetchData()
+    // }, [hash, fetchData])
 
     if (isLoadingError) return <p>Bad hash, please check the url and try again.</p>
-    if (!content) return <p>Loading</p>
+    if (!reqD) return <p>Loading</p>
+    if (!content) return <UnlockNotice>
+        <Text>You will need to unlock this see this.</Text>
+
+        {wallet.status === 'connected' ?
+            <Button onClick={() => fetchData()}>Verify my HODL & Unlock</Button> :
+            <Button onClick={() => wallet.connect('injected')}>Connect MetaMask</Button>
+        }
+    </UnlockNotice>
 
     return <>
         <Text h1>{content.title}</Text>
