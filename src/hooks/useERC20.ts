@@ -7,7 +7,7 @@ import { ZERO_ADDRESS } from "../constant";
 import { currentProvider } from "../constant/providers";
 import { useSigner } from "./useSigner";
 
-export function useERC20(tokenAddress?: string) {
+export function useERC20(tokenAddress?: string, updateInterval = 60) {
   const { account } = useWallet();
   const { signer, isSignerReady } = useSigner();
 
@@ -58,9 +58,9 @@ export function useERC20(tokenAddress?: string) {
   useEffect(() => {
     if (token.address === ZERO_ADDRESS) return;
     getProfile();
-    let refreshInterval = setInterval(getProfile, 1000 * 10);
+    let refreshInterval = setInterval(getProfile, 1000 * updateInterval);
     return () => clearInterval(refreshInterval);
-  }, [getProfile, token]);
+  }, [getProfile, token, updateInterval]);
 
   return { token, isProfileLoading, tokenProfile, formattedBalance };
 }
