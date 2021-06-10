@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import { useRecoilValue } from "recoil";
 import { chainIdState } from "../../stateAtoms/chainId.atom";
 import { ChainIdToName } from "../../constant";
+import { ProfileCard } from "../../components/requirement/ProfileCard";
 
 const SetRequirementContainer = styled.div``
 const BtnActions = styled.div``
@@ -71,11 +72,7 @@ export default function SetRequirementPage() {
             </>
         } />
 
-        {currentRequirement && !error && <Card>
-            <Text>Current Requirement: </Text>
-            <Text>Minimum amount of hodl to unlock: {currentRequirement.requirement.amount} {currentRequirement.requirement.token}</Text>
-            <Text>On ChainID {currentRequirement.requirement.networkId }</Text>
-        </Card>}
+        {currentRequirement && !error && <ProfileCard currentRequirement={currentRequirement.requirement} />}
         
         <Description title="Which Token hodl to unlock?" content={
             // <Input placeholder="e.g 0x114514...1919810" onChange={e => setToken(e.target.value)} width="50%" />

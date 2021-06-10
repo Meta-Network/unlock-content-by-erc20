@@ -1,13 +1,13 @@
-import { BigNumber, ethers, utils } from 'ethers';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useWallet } from 'use-wallet';
-import { BaseErc20Factory } from '../blockchain/contracts/BaseErc20Factory';
-import { ERC20Profile, getProfileOfERC20 } from '../blockchain/erc20Helper';
-import { ZERO_ADDRESS } from '../constant';
-import { currentProvider } from '../constant/providers';
-import { useSigner } from './useSigner';
+import { BigNumber, ethers, utils } from "ethers";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useWallet } from "use-wallet";
+import { BaseErc20Factory } from "../blockchain/contracts/BaseErc20Factory";
+import { ERC20Profile, getProfileOfERC20 } from "../blockchain/erc20Helper";
+import { ZERO_ADDRESS } from "../constant";
+import { currentProvider } from "../constant/providers";
+import { useSigner } from "./useSigner";
 
-export function useERC20(tokenAddress: string) {
+export function useERC20(tokenAddress?: string) {
   const { account } = useWallet();
   const { signer, isSignerReady } = useSigner();
 
@@ -24,8 +24,8 @@ export function useERC20(tokenAddress: string) {
 
   const profileWhileLoading: ERC20Profile = {
     tokenAddress: ZERO_ADDRESS,
-    name: 'Loading Token Profile',
-    symbol: 'Please wait',
+    name: "Loading Token Profile",
+    symbol: "Please wait",
     decimals: 18, // most the token use 18 decimals
     balance: BigNumber.from(0),
     updatedAtBlock: 0,
@@ -47,6 +47,7 @@ export function useERC20(tokenAddress: string) {
     if (token.address === ZERO_ADDRESS) return;
     resetProfileToLoading();
     const profile = await getProfileOfERC20(token, account);
+    console.info("profile", profile);
     setTokenProfile(profile);
   }, [token, account]);
 
