@@ -8,7 +8,17 @@ export enum ChainId {
   BSC_TESTNET = 97,
 }
 
-export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+export const ChainIdToName: Record<ChainId, string> = {
+  [ChainId.MAINNET]: "ETH",
+  [ChainId.RINKEBY]: "[Testnet] Rinkeby",
+  [ChainId.GÖRLI]: "[Testnet] GÖRLI",
+  [ChainId.KOVAN]: "[Testnet] Kovan",
+  [ChainId.ROPSTEN]: "[Testnet] Ropsten",
+  [ChainId.BSC_MAINNET]: "BSC",
+  [ChainId.BSC_TESTNET]: "[Testnet]BSC",
+};
+
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const currentChainId = Number(
   process.env.NEXT_PUBLIC_CHAIN_ID || 56

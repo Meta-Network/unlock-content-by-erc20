@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { useRecoilState } from "recoil"
+import { ChainId } from "../constant"
 import { chainIdState } from "../stateAtoms/chainId.atom"
 
 
@@ -16,7 +17,7 @@ export default function Listener() {
             setChainId(Number(initialChainId));
                 
             (window as any).ethereum.on('chainChanged', (newChainId: string) => {
-                setChainId(Number(newChainId))
+                setChainId(Number(newChainId) as ChainId)
             })
         }
     }, [process, setChainId])

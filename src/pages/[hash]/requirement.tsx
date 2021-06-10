@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Button, Input, Radio, Text, Description, Card } from "@geist-ui/react";
+import { Button, Input, Radio, Text, Description, Card, Tooltip, Note } from "@geist-ui/react";
 import styled from "styled-components"
 import useSWR, { mutate } from "swr";
 import { BigNumber } from "@ethersproject/bignumber";
@@ -9,6 +9,9 @@ import TokenSelector from "../../components/TokenSelector";
 import { Requirement, StandardTokenProfile } from "../../typing";
 import { utils } from "ethers";
 import { useRouter } from "next/router";
+import { useRecoilValue } from "recoil";
+import { chainIdState } from "../../stateAtoms/chainId.atom";
+import { ChainIdToName } from "../../constant";
 
 const SetRequirementContainer = styled.div``
 const BtnActions = styled.div``
@@ -16,7 +19,7 @@ const BtnActions = styled.div``
 export default function SetRequirementPage() {
     const router = useRouter()
     const { hash } = router.query
-    const [targetChainId, setTargetChain] = useState(56)
+    const targetChainId = useRecoilValue(chainIdState)
     const { data: currentRequirement, error } = useSWR(hash ? `/api/${hash}/requirement` : null, axiosSWRFetcher)
     const [targetToken, setToken] = useState<StandardTokenProfile | null>(null)
 
@@ -58,13 +61,14 @@ export default function SetRequirementPage() {
 
     return <SetRequirementContainer>
         <Text h1>Set requirement to Unlock the snippet</Text>
+
         <Description title="Token On which Network?" content={
-            <Radio.Group value={targetChainId} onChange={(val) => setTargetChain(Number(val))}>
-                <Radio value={1}>ETH Mainnet</Radio>
-                {/* <Radio value={4}>Rinkeby</Radio> */}
-                <Radio value={56}>BSC Mainnet</Radio>
-                {/* <Radio value={97}>BSC Testnet</Radio> */}
-            </Radio.Group>
+            <>
+                <Text h4>{ChainIdToName[targetChainId]}</Text>
+                <Note type="secondary" label="Switch network? ">
+                    Switch your network in your metamask. We Supported ETH Mainnet, BSC Mainnet, and some testnets.
+                </Note>
+            </>
         } />
 
         {currentRequirement && !error && <Card>
