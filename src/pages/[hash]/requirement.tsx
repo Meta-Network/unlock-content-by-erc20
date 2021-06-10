@@ -127,8 +127,8 @@ export default function SetRequirementPage() {
             />
         } />}
         <BtnActions>
-            <Button type="secondary" onClick={SetRequirement}>Set</Button>
-            <Button type="error" onClick={RmRequirement}>Remove</Button>
+            <Button type="secondary" onClick={SetRequirement}>Sign & Set</Button>
+            <Button type="error" disabled={!currentRequirement} onClick={RmRequirement}>Remove Requirement</Button>
         </BtnActions>
     </SetRequirementContainer>
 }
