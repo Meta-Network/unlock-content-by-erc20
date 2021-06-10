@@ -1,6 +1,8 @@
 import { BigNumber } from "@ethersproject/bignumber";
+import { ethers } from "ethers";
 import { ChainId } from "../constant";
 import { MULTICALL_NETWORKS } from "../constant/contracts";
+import { providers } from "../constant/providers";
 import { BaseErc20 } from "./contracts/BaseErc20";
 import { Multicall__factory } from "./contracts/MulticallFactory";
 
@@ -31,9 +33,11 @@ export async function getProfileOfERC20(
     target: tokenAddress,
     callData,
   }));
+  const mCallAddr = MULTICALL_NETWORKS[chainId];
+  console.info("mCallAddr", mCallAddr);
   const { returnData, blockNumber } = await Multicall__factory.connect(
-    MULTICALL_NETWORKS[chainId],
-    token.provider
+    mCallAddr,
+    providers[chainId] as ethers.providers.Provider
   ).callStatic.aggregate(calls);
   const [name] = token.interface.decodeFunctionResult("name", returnData[0]);
   const [symbol] = token.interface.decodeFunctionResult(

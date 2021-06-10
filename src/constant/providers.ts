@@ -11,20 +11,20 @@ export const providers: {
     "https://bsc-dataseed.binance.org/"
   ),
   // @todo: 取消下方的注释，以启用主网的 Provider
-  //   [ChainId.MAINNET]: new ethers.providers.AlchemyProvider(
-  //     'homestead',
-  //     process.env.NEXT_PUBLIC_ALCHEMY_APIKEY,
-  //   ),
-  //   [ChainId.KOVAN]: new ethers.providers.AlchemyProvider(
-  //     'kovan',
-  //     process.env.NEXT_PUBLIC_ALCHEMY_APIKEY,
-  //   ),
-  // [ChainId.RINKEBY]: new ethers.providers.AlchemyProvider(
-  //   'rinkeby',
+  [ChainId.MAINNET]: new ethers.providers.AlchemyProvider(
+    "homestead",
+    process.env.NEXT_PUBLIC_ALCHEMY_APIKEY
+  ),
+  [ChainId.KOVAN]: new ethers.providers.AlchemyProvider(
+    "kovan",
+    process.env.NEXT_PUBLIC_ALCHEMY_APIKEY
+  ),
+  [ChainId.RINKEBY]: new ethers.providers.AlchemyProvider(
+    "rinkeby",
+    process.env.NEXT_PUBLIC_ALCHEMY_APIKEY
+  ),
+  // [ChainId.GÖRLI]: new ethers.providers.AlchemyProvider(
+  //   "GÖRLI",
   //   process.env.NEXT_PUBLIC_ALCHEMY_APIKEY
   // ),
-  //   [ChainId.GÖRLI]: new ethers.providers.AlchemyProvider(
-  //     'gorli',
-  //     process.env.NEXT_PUBLIC_ALCHEMY_APIKEY,
-  //   ),
 };
