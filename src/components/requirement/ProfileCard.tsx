@@ -16,7 +16,7 @@ export function ProfileCard({ currentRequirement: requirement }: ProfileCardPara
     if (isProfileLoading) return <p>Loading Profile</p>
 
     return <Card>
-            <Text>Current Requirement: </Text>
+            <Text h4>Current Requirement: </Text>
             <Text>Minimum amount of hodl to unlock: {utils.formatUnits(requirement.amount, tokenProfile.decimals)} {tokenProfile.symbol}</Text>
             <Text>On Chain { ChainIdToName[requirement.networkId as ChainId] || requirement.networkId }</Text>
         </Card>

@@ -62,6 +62,7 @@ export default function SetRequirementPage() {
 
     return <SetRequirementContainer>
         <Text h1>Set requirement to Unlock the snippet</Text>
+        {currentRequirement && !error && <ProfileCard currentRequirement={currentRequirement.requirement} />}
 
         <Description title="Token On which Network?" content={
             <>
@@ -72,7 +73,6 @@ export default function SetRequirementPage() {
             </>
         } />
 
-        {currentRequirement && !error && <ProfileCard currentRequirement={currentRequirement.requirement} />}
         
         <Description title="Which Token hodl to unlock?" content={
             // <Input placeholder="e.g 0x114514...1919810" onChange={e => setToken(e.target.value)} width="50%" />
