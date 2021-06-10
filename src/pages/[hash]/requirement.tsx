@@ -11,7 +11,7 @@ import { utils } from "ethers";
 import { useRouter } from "next/router";
 import { useRecoilValue } from "recoil";
 import { chainIdState } from "../../stateAtoms/chainId.atom";
-import { ChainIdToName } from "../../constant";
+import { ChainIdToName, ZERO_ADDRESS } from "../../constant";
 import { ProfileCard } from "../../components/requirement/ProfileCard";
 import { useSigner } from "../../hooks/useSigner";
 import { getEIP712Profile } from "../../constant/EIP712Domain";
@@ -74,7 +74,20 @@ export default function SetRequirementPage() {
 
     const RmRequirement = useCallback(async () => {
         if (typeof hash !== 'string') return;
-        await axios.delete(`/api/${hash}/requirement`)
+        if (!isSignerReady(signer)) return;
+
+        const sig = await signer._signTypedData(getEIP712Profile(targetChainId),
+        {
+            Requirement: [
+                { name: "token", type: "address" },
+                { name: "amount", type: "uint256" },
+            ],
+        }, 
+        {
+            token: ZERO_ADDRESS,
+            amount: '0'
+        })
+        await axios.delete(`/api/${hash}/requirement`, { data: { sig, chainId: targetChainId } })
         mutate(`/api/${hash}/requirement`)
         alert('Requirement is removed, the update will be good in 2 min.')
     }, [hash])

@@ -3,16 +3,20 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWallet } from "use-wallet";
 import { BaseErc20Factory } from "../blockchain/contracts/BaseErc20Factory";
 import { ERC20Profile, getProfileOfERC20 } from "../blockchain/erc20Helper";
-import { ZERO_ADDRESS } from "../constant";
-import { currentProvider } from "../constant/providers";
+import { ChainId, ZERO_ADDRESS } from "../constant";
+import { providers } from "../constant/providers";
 import { useSigner } from "./useSigner";
 
-export function useERC20(tokenAddress?: string, updateInterval = 60) {
+export function useERC20(
+  tokenAddress: string | null,
+  chainId: ChainId = 1,
+  updateInterval = 60
+) {
   const { account } = useWallet();
   const { signer, isSignerReady } = useSigner();
 
   const token = useMemo(() => {
-    const readonlyProvider = currentProvider as ethers.providers.Provider;
+    const readonlyProvider = providers[chainId] as ethers.providers.Provider;
     if (!tokenAddress)
       return BaseErc20Factory.connect(ZERO_ADDRESS, readonlyProvider);
     if (isSignerReady(signer)) {
@@ -46,7 +50,7 @@ export function useERC20(tokenAddress?: string, updateInterval = 60) {
   const getProfile = useCallback(async () => {
     if (token.address === ZERO_ADDRESS) return;
     resetProfileToLoading();
-    const profile = await getProfileOfERC20(token, account);
+    const profile = await getProfileOfERC20(token, chainId, account);
     console.info("profile", profile);
     setTokenProfile(profile);
   }, [token, account]);

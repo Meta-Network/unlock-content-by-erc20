@@ -10,7 +10,7 @@ type ProfileCardParams = {
 }
 
 export function ProfileCard({ currentRequirement: requirement }: ProfileCardParams) {
-    const { isProfileLoading, tokenProfile } = useERC20(requirement?.token)
+    const { isProfileLoading, tokenProfile } = useERC20(requirement ? requirement.token : null, requirement?.networkId)
     // not render anything if empty
     if (!requirement) return <></>
     if (isProfileLoading) return <p>Loading Profile</p>

@@ -4,6 +4,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { utils } from "ethers";
 import { getEIP712Profile } from "../../../constant/EIP712Domain";
 import { WorkerKV } from "../../../constant/kvclient";
+import { ZERO_ADDRESS } from "../../../constant";
 
 function recoverFromSig(
   chainId: number,
@@ -67,8 +68,8 @@ async function removeRequirement(
   body: any,
   res: NextApiResponse<any>
 ) {
-  const { chainId, token, sig } = body;
-  const signer = recoverFromSig(Number(chainId), token, "0", sig);
+  const { chainId, sig } = body;
+  const signer = recoverFromSig(Number(chainId), ZERO_ADDRESS, "0", sig);
   // @todo: check permission with `signer` etc.
 
   const success = await WorkerKV.removeRequirement(hash);

@@ -24,7 +24,7 @@ max-width: 100%;
 export default function TokenSelector({ onSelected, selectedChainId }: TokenSelectorParams) {
     const tokenListURI = useMemo(() => {
         switch (selectedChainId) {
-            case 1: return 'https://tokens.coingecko.com/uniswap/all.json';
+            case 1: return 'https://gateway.ipfs.io/ipns/tokens.uniswap.org';
             case 56: return 'https://tokens.pancakeswap.finance/pancakeswap-top-100.json';
             default: return null;
         }

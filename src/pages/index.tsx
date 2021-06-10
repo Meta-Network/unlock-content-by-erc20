@@ -4,7 +4,6 @@ import Image from 'next/image'
 import React, { useCallback, useState } from 'react'
 import { useWallet } from 'use-wallet'
 import { Button, Text } from "@geist-ui/react";
-import { currentSupportedTokens } from '../constant/contracts'
 import { getEIP712Profile } from '../constant/EIP712Domain'
 import { useSigner } from '../hooks/useSigner'
 import styles from '../styles/Home.module.css'
@@ -22,25 +21,6 @@ export default function Home() {
   const [uploadedHash, setUploadedHash] = useState('')
 
   const { signer, isSignerReady } = useSigner()
-
-  const signMsg = useCallback(async () => {
-    if (!isSignerReady(signer)) return;
-
-    const sig = await signer._signTypedData(getEIP712Profile(chainId),
-      {
-        Request: [
-            { name: 'token', type: 'address' },
-            { name: 'challenge', type: 'string' },
-        ]
-      }, 
-      {
-        token: currentSupportedTokens!.USDT,
-        challenge: 'FOO_BAR_SOMETHING_IDENTIFIABLE'
-      })
-
-    console.info('sig', sig)
-
-  }, [signer])
 
   if (uploadedHash) {
     return <SnippetCreated uploadedHash={uploadedHash} />

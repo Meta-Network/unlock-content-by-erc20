@@ -1,25 +1,26 @@
-import { BigNumberish, ethers } from 'ethers';
-import { useCallback, useMemo } from 'react';
-import { WETH9__factory } from '../blockchain/contracts/WETH9__factory';
-import { currentWETH } from '../constant/contracts';
-import { currentProvider } from '../constant/providers';
-import { useSigner } from './useSigner';
+import { BigNumberish, ethers } from "ethers";
+import { useCallback, useMemo } from "react";
+import { WETH9__factory } from "../blockchain/contracts/WETH9__factory";
+import { useSigner } from "./useSigner";
 
-export function useWETH() {
+export function useWETH(
+  currentProvider: ethers.providers.Provider,
+  address: string
+) {
   const { signer, isSignerReady } = useSigner();
   const weth = useMemo(() => {
-    const readonlyProvider = currentProvider as ethers.providers.Provider;
+    const readonlyProvider = currentProvider;
     if (isSignerReady(signer)) {
-      return WETH9__factory.connect(currentWETH, signer);
+      return WETH9__factory.connect(address, signer);
     } else {
-      return WETH9__factory.connect(currentWETH, readonlyProvider);
+      return WETH9__factory.connect(address, readonlyProvider);
     }
   }, [signer]);
 
   const deposit = useCallback(
     async (amount: BigNumberish) => {
       if (!isSignerReady(signer))
-        throw new Error('Please connect wallet to continue');
+        throw new Error("Please connect wallet to continue");
 
       const txRequest = await weth.deposit({ value: amount });
       const receipt = await txRequest.wait();
@@ -31,7 +32,7 @@ export function useWETH() {
   const withdraw = useCallback(
     async (amount: BigNumberish) => {
       if (!isSignerReady(signer))
-        throw new Error('Please connect wallet to continue');
+        throw new Error("Please connect wallet to continue");
 
       const txRequest = await weth.withdraw(amount);
       const receipt = await txRequest.wait();
