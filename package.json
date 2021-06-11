@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@geist-ui/react": "^2.1.5",
+    "@geist-ui/react-icons": "^1.0.1",
     "@metamask/onboarding": "^1.0.0",
     "@toast-ui/react-editor": "^2.5.3",
     "ahooks": "^2.10.5",
