@@ -9,7 +9,7 @@ import { useSigner } from "./useSigner";
 
 export function useERC20(
   tokenAddress: string | null,
-  chainId: ChainId | null,
+  chainId?: ChainId,
   updateInterval = 60
 ) {
   const { account } = useWallet();
