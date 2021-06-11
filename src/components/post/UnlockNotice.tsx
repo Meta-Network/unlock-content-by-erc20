@@ -15,6 +15,8 @@ import { useSigner } from "../../hooks/useSigner"
 import { chainIdState } from "../../stateAtoms/chainId.atom"
 import { Requirement, SnipperForShowing } from "../../typing"
 import { ProfileCard } from "../requirement/ProfileCard"
+import useSWR from "swr"
+import { axiosSWRFetcher } from "../../utils"
 
 type UnlockNoticeParams = {
     onDecrypted: (data: SnipperForShowing) => any;
@@ -28,6 +30,7 @@ const UnlockNoticeContainer = styled.div``
 
 export default function UnlockNotice({ onDecrypted, onError, requirement, hash }: UnlockNoticeParams) {
     const wallet = useWallet()
+    const { data: ipfsData } = useSWR(hash ? `https://ipfs.fleek.co/ipfs/${hash}` : null, axiosSWRFetcher)
     const currentConnectedChain = useRecoilValue(chainIdState)
     const token = useMemo(() => {
         const provider = providers[requirement.networkId as ChainId]
@@ -63,6 +66,12 @@ export default function UnlockNotice({ onDecrypted, onError, requirement, hash }
             }
         }
     }, [signer, hash, requirement])
+
+    const isGoodToUnlock = useMemo(() => {
+        if (isEnough(requirement.amount)) return true;
+        if (ipfsData && wallet.account && ipfsData.owner === wallet.account) return true;
+        return false;
+    }, [requirement, isEnough, wallet, ipfsData])
     
     return <UnlockNoticeContainer>
         <Text>You will need to request a unlock to see this.</Text>
@@ -76,7 +85,7 @@ export default function UnlockNotice({ onDecrypted, onError, requirement, hash }
             <>
                 <Text>👛 {wallet.account}</Text>
                 <Text>Current Balance: {formattedBalance}</Text>
-                { lastUpdated.getTime() !== 0 && <Text> { isEnough(requirement.amount) ? '✅ Is' : '❌ Not' } Qualified to request unlock </Text>}
+                { lastUpdated.getTime() !== 0 && <Text> { isGoodToUnlock ? '✅ Is' : '❌ Not' } Qualified to request unlock </Text>}
                 <Button onClick={() => fetchData()}>Verify my HODL & Unlock</Button>
             </>
             :

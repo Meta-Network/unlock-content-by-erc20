@@ -29,7 +29,6 @@ const DetailBar = styled.div`
 export default function Post() {
     const router = useRouter();
     const wallet = useWallet()
-    const { signer, isSignerReady } = useSigner()
     const { hash } = router.query
     const [content, setContent] = useState<null | SnipperForShowing>(null)
     const [decryptError, setDErr] = useState<any>(null)
