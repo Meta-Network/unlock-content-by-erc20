@@ -65,7 +65,9 @@ async function getUnlockedContent(
   sig: string,
   res: NextApiResponse<UnlockedSnippet | { message: string }>
 ) {
+  const encryptedData = await ipfsCat<EncryptedSnippet>(hash);
   const requirement = await WorkerKV.getRequirement(hash);
+  // const data = await WorkerKV.
 
   // If `requirement` exist, but not matching requirement, throw error
   if (
@@ -88,8 +90,11 @@ async function getUnlockedContent(
       who
     );
     console.info(`currentBalance for ${who}: ${currentBalance.toString()}`);
-    // throw when currentBalance < requirement.amount
-    if (currentBalance.lt(requirement.amount)) {
+    /** throw a error when:
+     * - currentBalance < requirement.amount
+     * - *or* -
+     * - the signer is not the owner */
+    if (currentBalance.lt(requirement.amount) || who !== encryptedData.owner) {
       return res.status(400).json({
         message: "Balance is not enough for unlock, please try again later.",
       });
@@ -97,7 +102,7 @@ async function getUnlockedContent(
   }
 
   // check finish, decrypt now
-  const encryptedData = await ipfsCat<EncryptedSnippet>(hash);
+
   if (!encryptedData.content || !encryptedData.iv) {
     return res.status(400).json({ message: "Bad file for us" });
   }
