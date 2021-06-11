@@ -7,7 +7,12 @@ import { getEIP712Profile } from "../../../constant/EIP712Domain";
 import { WorkerKV } from "../../../constant/kvclient";
 import { providers } from "../../../constant/providers";
 import { decrypt } from "../../../encryption";
-import { EncryptedSnippet, Snippet, UnlockedSnippet } from "../../../typing";
+import {
+  EncryptedSnippet,
+  Requirement,
+  Snippet,
+  UnlockedSnippet,
+} from "../../../typing";
 import { ipfsCat } from "../../../utils/ipfs";
 
 function recoverFromSig(
@@ -58,6 +63,41 @@ async function getPreviewOf(hash: string, res: NextApiResponse<any>) {
   return getUnlockedContent(hash, "", 0, "", res);
 }
 
+async function permissionCheck(
+  requirement: Requirement | null,
+  encryptedData: EncryptedSnippet,
+  chainId: number,
+  who: string,
+  token: string
+): Promise<void> {
+  // If `requirement` exist, skip these check
+  if (!requirement) return;
+  // If `requirement` exist, but not matching requirement, throw error
+  if (
+    requirement.networkId !== chainId ||
+    utils.getAddress(requirement.token) !== utils.getAddress(token)
+  ) {
+    throw new Error("Bad parameter to unlock");
+  }
+
+  // If `requirement` exist, verify.
+  // Otherwise, just skip and unlock then.
+  const currentBalance: BigNumber = await getBalance(
+    requirement?.networkId,
+    token,
+    who
+  );
+  /** throw a error when:
+   * - currentBalance < requirement.amount
+   * - and -
+   * - the signer is not the owner */
+  if (who !== encryptedData.owner && currentBalance.lt(requirement.amount)) {
+    throw new Error(
+      "Balance is not enough for unlock, please try again later."
+    );
+  }
+}
+
 async function getUnlockedContent(
   hash: string,
   token: string,
@@ -67,39 +107,10 @@ async function getUnlockedContent(
 ) {
   const encryptedData = await ipfsCat<EncryptedSnippet>(hash);
   const requirement = await WorkerKV.getRequirement(hash);
-  // const data = await WorkerKV.
 
-  // If `requirement` exist, but not matching requirement, throw error
-  if (
-    requirement &&
-    (requirement.networkId !== chainId ||
-      utils.getAddress(requirement.token) !== utils.getAddress(token))
-  ) {
-    return res.status(400).json({
-      message: "Bad parameter to unlock",
-    });
-  }
-
-  // If `requirement` exist, verify.
-  // Otherwise, just skip and unlock then.
-  if (requirement) {
-    const who = recoverFromSig(chainId, hash, token, sig);
-    const currentBalance: BigNumber = await getBalance(
-      requirement?.networkId,
-      token,
-      who
-    );
-    console.info(`currentBalance for ${who}: ${currentBalance.toString()}`);
-    /** throw a error when:
-     * - currentBalance < requirement.amount
-     * - *or* -
-     * - the signer is not the owner */
-    if (currentBalance.lt(requirement.amount) || who !== encryptedData.owner) {
-      return res.status(400).json({
-        message: "Balance is not enough for unlock, please try again later.",
-      });
-    }
-  }
+  const who = recoverFromSig(chainId, hash, token, sig);
+  // do some check here
+  await permissionCheck(requirement, encryptedData, chainId, who, token);
 
   // check finish, decrypt now
 
