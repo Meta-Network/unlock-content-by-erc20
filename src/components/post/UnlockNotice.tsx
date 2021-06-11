@@ -1,9 +1,14 @@
 import { Button, Text } from "@geist-ui/react"
 import axios from "axios"
-import React, { useCallback } from "react"
+import { ethers, utils } from "ethers"
+import React, { useCallback, useMemo } from "react"
 import styled from "styled-components"
 import { useWallet } from "use-wallet"
+import { BaseErc20Factory } from "../../blockchain/contracts/BaseErc20Factory"
+import { ChainId } from "../../constant"
 import { getEIP712Profile } from "../../constant/EIP712Domain"
+import { providers } from "../../constant/providers"
+import { useBalance } from "../../hooks/useBalance"
 import { useSigner } from "../../hooks/useSigner"
 import { Requirement, SnipperForShowing } from "../../typing"
 import { ProfileCard } from "../requirement/ProfileCard"
@@ -20,6 +25,11 @@ const UnlockNoticeContainer = styled.div``
 
 export default function UnlockNotice({ onDecrypted, onError, requirement, hash }: UnlockNoticeParams) {
     const wallet = useWallet()
+    const token = useMemo(() => {
+        const provider = providers[requirement.networkId as ChainId]
+        return BaseErc20Factory.connect(requirement.token, provider as ethers.providers.Provider)
+    }, [requirement])
+    const { formattedBalance, lastUpdated, isEnough } = useBalance(token)
     const { signer, isSignerReady } = useSigner()
 
     const fetchData = useCallback(async () => {
@@ -51,12 +61,16 @@ export default function UnlockNotice({ onDecrypted, onError, requirement, hash }
     }, [signer, hash, requirement])
     
     return <UnlockNoticeContainer>
-        <Text>You will need to unlock this see this.</Text>
+        <Text>You will need to request a unlock to see this.</Text>
         <ProfileCard currentRequirement={requirement} />
-        <Text>Current Balance: </Text>
         {wallet.status === 'connected' ?
-            <Button onClick={() => fetchData()}>Verify my HODL & Unlock</Button> :
-            <Button onClick={() => wallet.connect('injected')}>Connect MetaMask</Button>
+            <>
+                <Text>👛 { wallet.account }</Text>
+                <Text>Current Balance: {formattedBalance}</Text>
+                { lastUpdated.getTime() !== 0 && <Text> { isEnough(requirement.amount) ? '✅ Is' : '❌ Not' } Qualified to request unlock </Text>}
+                <Button onClick={() => fetchData()}>Verify my HODL & Unlock</Button>
+            </>
+            : <Button onClick={() => wallet.connect('injected')}>Connect with MetaMask</Button>
         }
     </UnlockNoticeContainer>
 }
