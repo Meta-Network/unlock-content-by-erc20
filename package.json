@@ -12,6 +12,7 @@
     "@metamask/onboarding": "^1.0.0",
     "@toast-ui/react-editor": "^2.5.3",
     "ahooks": "^2.10.5",
+    "axios": "^0.21.1",
     "dayjs": "^1.10.5",
     "eth-sig-util": "^3.0.1",
     "ethers": "^5.3.0",
