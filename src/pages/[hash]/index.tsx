@@ -16,6 +16,7 @@ import { useSigner } from "../../hooks/useSigner";
 import { getEIP712Profile } from "../../constant/EIP712Domain";
 import { useWallet } from "use-wallet";
 import { ProfileCard } from "../../components/requirement/ProfileCard";
+import UnlockNotice from "../../components/post/UnlockNotice";
 
 dayjs.extend(relativeTime);
 
@@ -25,8 +26,6 @@ const DetailBar = styled.div`
 }
 `
 
-const UnlockNotice = styled.div``
-
 export default function Post() {
     const router = useRouter();
     const wallet = useWallet()
@@ -35,36 +34,8 @@ export default function Post() {
     const [content, setContent] = useState<null | SnipperForShowing>(null)
     const [decryptError, setDErr] = useState<any>(null)
 
-    const [sig, setSig] = useState('')
+    // const [sig, setSig] = useState('')
     const { data: reqD, error: errorOnRequirement } = useSWR(hash ? `/api/${hash}/requirement` : null, axiosSWRFetcher)
-
-    const fetchData = useCallback(async () => {
-        if (!isSignerReady(signer)) return;
-        try {
-            const sig = await signer._signTypedData(getEIP712Profile(reqD.requirement.networkId),
-                {
-                    RequestUnlock: [
-                        { name: "token", type: "address" },
-                        { name: "hash", type: "string" },
-                    ],
-                }, 
-                {
-                    token: reqD.requirement.token,
-                    hash
-                }
-            )
-            const { data } = await axios.post('/api/' + hash, {
-                sig, chainId: reqD.requirement.networkId, token: reqD.requirement.token
-            })
-            setContent(data)  
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setDErr(error.response?.data)
-            } else {
-                setDErr(error)
-            }
-        }
-    }, [signer, hash, reqD, sig])
 
     // useEffect(() => {
     //     console.info('useEffect::hash', hash)
@@ -81,14 +52,12 @@ export default function Post() {
     }
 
     if (!reqD) return <p>Loading</p>
-    if (!content) return <UnlockNotice>
-        <Text>You will need to unlock this see this.</Text>
-        <ProfileCard currentRequirement={reqD.requirement} />
-        {wallet.status === 'connected' ?
-            <Button onClick={() => fetchData()}>Verify my HODL & Unlock</Button> :
-            <Button onClick={() => wallet.connect('injected')}>Connect MetaMask</Button>
-        }
-    </UnlockNotice>
+    if (!content) return <UnlockNotice
+        hash={hash as string}
+        requirement={reqD.requirement}
+        onDecrypted={(val) => setContent(val)}
+        onError={(err) => { setDErr(err) }}
+    />
 
     return <>
         <Text h1>{content.title}</Text>
