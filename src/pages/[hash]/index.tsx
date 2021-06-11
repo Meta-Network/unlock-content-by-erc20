@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ReactMarkdown from "react-markdown";
@@ -15,6 +15,7 @@ import useSWR from "swr";
 import { useSigner } from "../../hooks/useSigner";
 import { getEIP712Profile } from "../../constant/EIP712Domain";
 import { useWallet } from "use-wallet";
+import { ProfileCard } from "../../components/requirement/ProfileCard";
 
 dayjs.extend(relativeTime);
 
@@ -70,7 +71,7 @@ export default function Post() {
     if (!reqD) return <p>Loading</p>
     if (!content) return <UnlockNotice>
         <Text>You will need to unlock this see this.</Text>
-
+        <ProfileCard currentRequirement={reqD.requirement} />
         {wallet.status === 'connected' ?
             <Button onClick={() => fetchData()}>Verify my HODL & Unlock</Button> :
             <Button onClick={() => wallet.connect('injected')}>Connect MetaMask</Button>

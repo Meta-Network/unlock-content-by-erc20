@@ -1,8 +1,11 @@
 import { recoverTypedSignature } from "eth-sig-util";
-import { utils } from "ethers";
+import { BigNumber, ethers, utils } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
+import { BaseErc20Factory } from "../../../blockchain/contracts/BaseErc20Factory";
+import { ChainId } from "../../../constant";
 import { getEIP712Profile } from "../../../constant/EIP712Domain";
 import { WorkerKV } from "../../../constant/kvclient";
+import { providers } from "../../../constant/providers";
 import { decrypt } from "../../../encryption";
 import { EncryptedSnippet, Snippet, UnlockedSnippet } from "../../../typing";
 import { ipfsCat } from "../../../utils/ipfs";
@@ -23,7 +26,7 @@ function recoverFromSig(
           { name: "verifyingContract", type: "address" },
         ],
         RequestUnlock: [
-          { name: "token", type: "string" },
+          { name: "token", type: "address" },
           { name: "hash", type: "string" },
         ],
       },
@@ -39,6 +42,18 @@ function recoverFromSig(
   return utils.getAddress(recoveredWallet);
 }
 
+async function getBalance(
+  chainId: number,
+  token: string,
+  who: string
+): Promise<BigNumber> {
+  const provider = providers[chainId as ChainId];
+  if (!provider) throw new Error(`Unsupported Chain ${chainId}`);
+
+  const tokenObj = BaseErc20Factory.connect(token, provider);
+  return tokenObj.balanceOf(who);
+}
+
 async function getPreviewOf(hash: string, res: NextApiResponse<any>) {
   return getUnlockedContent(hash, "", 0, "", res);
 }
@@ -50,7 +65,38 @@ async function getUnlockedContent(
   sig: string,
   res: NextApiResponse<UnlockedSnippet | { message: string }>
 ) {
-  // const recovered = recoverFromSig(chainId, hash, sig)
+  const requirement = await WorkerKV.getRequirement(hash);
+
+  // If `requirement` exist, but not matching requirement, throw error
+  if (
+    requirement &&
+    (requirement.networkId !== chainId ||
+      utils.getAddress(requirement.token) !== utils.getAddress(token))
+  ) {
+    return res.status(400).json({
+      message: "Bad parameter to unlock",
+    });
+  }
+
+  // If `requirement` exist, verify.
+  // Otherwise, just skip and unlock then.
+  if (requirement) {
+    const who = recoverFromSig(chainId, hash, token, sig);
+    const currentBalance: BigNumber = await getBalance(
+      requirement?.networkId,
+      token,
+      who
+    );
+    console.info(`currentBalance for ${who}: ${currentBalance.toString()}`);
+    // throw when currentBalance < requirement.amount
+    if (currentBalance.lt(requirement.amount)) {
+      return res.status(400).json({
+        message: "Balance is not enough for unlock, please try again later.",
+      });
+    }
+  }
+
+  // check finish, decrypt now
   const encryptedData = await ipfsCat<EncryptedSnippet>(hash);
   if (!encryptedData.content || !encryptedData.iv) {
     return res.status(400).json({ message: "Bad file for us" });
