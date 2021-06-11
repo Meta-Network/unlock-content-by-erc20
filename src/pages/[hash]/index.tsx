@@ -5,7 +5,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import ReactMarkdown from "react-markdown";
 import { Row, Col, Text, Tooltip, Button } from "@geist-ui/react";
 import { useBoolean } from "ahooks";
-import axios from "axios";
+import axios, {AxiosInstance, AxiosError} from "axios";
 import { SnipperForShowing } from "../../typing";
 import styled from "styled-components";
 import { useRecoilValue } from "recoil";
@@ -33,10 +33,10 @@ export default function Post() {
     const { signer, isSignerReady } = useSigner()
     const { hash } = router.query
     const [content, setContent] = useState<null | SnipperForShowing>(null)
-    const [isLoadingError, { setTrue: onLoadingError }] = useBoolean(false)
+    const [decryptError, setDErr] = useState<any>(null)
 
     const [sig, setSig] = useState('')
-    const { data: reqD, error } = useSWR(hash ? `/api/${hash}/requirement` : null, axiosSWRFetcher)
+    const { data: reqD, error: errorOnRequirement } = useSWR(hash ? `/api/${hash}/requirement` : null, axiosSWRFetcher)
 
     const fetchData = useCallback(async () => {
         if (!isSignerReady(signer)) return;
@@ -58,7 +58,11 @@ export default function Post() {
             })
             setContent(data)  
         } catch (error) {
-            onLoadingError()
+            if (axios.isAxiosError(error)) {
+                setDErr(error.response?.data)
+            } else {
+                setDErr(error)
+            }
         }
     }, [signer, hash, reqD, sig])
 
@@ -67,7 +71,15 @@ export default function Post() {
     //     if (hash) fetchData()
     // }, [hash, fetchData])
 
-    if (isLoadingError) return <p>Bad hash, please check the url and try again.</p>
+    if (errorOnRequirement)
+        return <p>Bad hash, please check the url and try again.</p>
+
+
+    if (decryptError) {
+        console.info('error when decrypt: ', decryptError)
+        return <div>Decryption error, msg: {JSON.stringify(decryptError)} </div>
+    }
+
     if (!reqD) return <p>Loading</p>
     if (!content) return <UnlockNotice>
         <Text>You will need to unlock this see this.</Text>
