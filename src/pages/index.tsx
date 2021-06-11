@@ -3,12 +3,17 @@ import dynamic from "next/dynamic";
 import Image from 'next/image'
 import React, { useCallback, useState } from 'react'
 import { useWallet } from 'use-wallet'
-import { Button, Text } from "@geist-ui/react";
+import { Button, Description, Input, Note, Text } from "@geist-ui/react";
 import { getEIP712Profile } from '../constant/EIP712Domain'
 import { useSigner } from '../hooks/useSigner'
 import styles from '../styles/Home.module.css'
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { chainIdState } from '../stateAtoms/chainId.atom';
+import { StandardTokenProfile } from '../typing';
+import { BigNumber, utils } from 'ethers';
+import axios from 'axios';
+import { ChainIdToName } from '../constant';
+import TokenSelector from '../components/TokenSelector';
 // dynamic load
 const CreateSnippet = dynamic(() => import("../components/CreateSnippet"), { ssr: false }) ;
 const SnippetCreated = dynamic(() => import('../components/SnippetCreated'), { ssr: false });
@@ -16,11 +21,13 @@ const SnippetCreated = dynamic(() => import('../components/SnippetCreated'), { s
 
 export default function Home() {
   const wallet = useWallet()
+  const { signer, isSignerReady } = useSigner()
+
   const [chainId] = useRecoilState(chainIdState)
 
   const [uploadedHash, setUploadedHash] = useState('')
 
-  const { signer, isSignerReady } = useSigner()
+
 
   if (uploadedHash) {
     return <SnippetCreated uploadedHash={uploadedHash} />
@@ -49,15 +56,13 @@ export default function Home() {
           </>
           : 
             <>
-              <CreateSnippet onSent={(res) => {
+              <CreateSnippet onSent={async (res) => {
                 setUploadedHash(res.hash)
               }} />
 
               {uploadedHash && <a href={`https://ipfs.fleek.co/ipfs/${uploadedHash}`} target="_blank">Go IPFS to See RAW</a>}
               {uploadedHash && <a href={`/${uploadedHash}`}>Decrypt and See</a>}
 
-              {/* <Button onClick={() => signMsg() }>Sign</Button>
-              <Button onClick={() => wallet.reset()}>Disconnect</Button> */}
           </>
         }
 
