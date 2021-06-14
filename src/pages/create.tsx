@@ -7,9 +7,10 @@ import styles from '../styles/Home.module.css'
 import { useRecoilState } from 'recoil';
 import { chainIdState } from '../stateAtoms/chainId.atom';
 import { ChainIdToName } from '../constant';
+import { useMemo } from 'react';
 // dynamic load
-const CreateSnippet = dynamic(() => import("../components/CreateSnippet"), { ssr: false }) ;
-const SnippetCreated = dynamic(() => import('../components/SnippetCreated'), { ssr: false });
+const CreateSnippet = dynamic(() => import("../components/Create/CreateSnippet"), { ssr: false }) ;
+const SnippetCreated = dynamic(() => import('../components/Create/SnippetCreated'), { ssr: false });
 
 
 export default function CreateSnippetPage() {
@@ -23,6 +24,8 @@ export default function CreateSnippetPage() {
     return <SnippetCreated uploadedHash={uploadedHash} />
   }
     
+  const isWalletConnected = useMemo(() => wallet.status === 'connected', [wallet])
+    
   return (
     <div className={styles.container}>
       <Head>
@@ -33,12 +36,16 @@ export default function CreateSnippetPage() {
 
       <main className={styles.main}>
         {
-        wallet.status !== 'connected' ?
+        !isWalletConnected ?
           <>
             <Text h1>🤔 Please connect your wallet</Text>
             <Text h4>👮‍♀️ Because We'll need your signature to identify you. </Text>
-                          <Text>🔐 We only require your digital signature on content hash. <br />
-                              Feel free to <a href="https://eips.ethereum.org/EIPS/eip-712" target="_blank">check out tech spec</a> about Ethereum digital signature that we are using now.</Text>
+            <Text>🔐 We only require your digital signature on content hash. 
+                <br />
+                Feel free to 
+                <a href="https://eips.ethereum.org/EIPS/eip-712" target="_blank">check out tech spec</a>
+                about Ethereum digital signature that we are using now.
+            </Text>
             <p>Connected to Network: { ChainIdToName[chainId] || '❌ Not supported Network' }</p>
             <p>Connect Wallet by</p>
             <Button onClick={() => wallet.connect('injected')}>MetaMask</Button>

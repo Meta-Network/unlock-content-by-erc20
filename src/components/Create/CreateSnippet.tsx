@@ -3,7 +3,7 @@ import axios from "axios";
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { Editor } from '@toast-ui/react-editor';
-import { UploadReturn } from "../typing";
+import { UploadReturn } from "../../typing";
 import { useWallet } from "use-wallet";
 import { Button, Input } from "@geist-ui/react";
 import { useBoolean } from "ahooks";

@@ -2,17 +2,17 @@ import Head from 'next/head'
 import NextLink from "next/link";
 import React, { useCallback, useState } from 'react'
 import { Button, Text, useClipboard, useToasts, Description, Input, Note } from "@geist-ui/react";
-import styles from '../styles/Home.module.css'
+import styles from '../../styles/Home.module.css'
 import styled from 'styled-components';
 import axios from 'axios';
 import { BigNumber, utils } from 'ethers';
 import { useRecoilValue } from 'recoil';
-import { ChainIdToName } from '../constant';
-import { getEIP712Profile } from '../constant/EIP712Domain';
-import { useSigner } from '../hooks/useSigner';
-import { chainIdState } from '../stateAtoms/chainId.atom';
-import { StandardTokenProfile } from '../typing';
-import TokenSelector from './TokenSelector';
+import { ChainIdToName } from '../../constant';
+import { getEIP712Profile } from '../../constant/EIP712Domain';
+import { useSigner } from '../../hooks/useSigner';
+import { chainIdState } from '../../stateAtoms/chainId.atom';
+import { StandardTokenProfile } from '../../typing';
+import TokenSelector from '../TokenSelector';
 
 type Params = {
     uploadedHash: string;
