@@ -71,7 +71,7 @@ async function permissionCheck(
   token: string
 ): Promise<void> {
   // If `requirement` exist, skip these check
-  if (!requirement) return;
+  if (!requirement) throw new Error("No requirement, not doing unlock");
   // If `requirement` exist, but not matching requirement, throw error
   if (
     requirement.networkId !== chainId ||
