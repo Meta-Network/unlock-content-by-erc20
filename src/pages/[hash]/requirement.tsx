@@ -16,6 +16,7 @@ import { ProfileCard } from "../../components/requirement/ProfileCard";
 import { useSigner } from "../../hooks/useSigner";
 import { getEIP712Profile } from "../../constant/EIP712Domain";
 import { useWallet } from "use-wallet";
+import GuideToConnect from "../../components/GuideToConnect";
 
 const SetRequirementContainer = styled.div``
 const BtnActions = styled.div``
@@ -93,10 +94,7 @@ export default function SetRequirementPage() {
     }, [hash])
 
     if (wallet.status !== 'connected') {
-        return <SetRequirementContainer>
-            <Text h1>Connect wallet to continute</Text>
-            <Button onClick={() => wallet.connect('injected')}>Connect by MetaMask</Button>
-        </SetRequirementContainer>
+        return <GuideToConnect />
     }
 
     return <SetRequirementContainer>
