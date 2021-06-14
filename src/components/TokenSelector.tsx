@@ -25,7 +25,7 @@ export default function TokenSelector({ onSelected, selectedChainId }: TokenSele
     const tokenListURI = useMemo(() => {
         switch (selectedChainId) {
             case 1: return 'https://gateway.ipfs.io/ipns/tokens.uniswap.org';
-            case 56: return 'https://tokens.pancakeswap.finance/pancakeswap-top-100.json';
+            case 56: return 'https://unpkg.com/@lychees/default-token-list@1.1.10/build/uniscam-default.tokenlist.json';
             default: return null;
         }
     }, [selectedChainId])
