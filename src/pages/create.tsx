@@ -18,12 +18,12 @@ export default function CreateSnippetPage() {
   const wallet = useWallet()
 
   const [uploadedHash, setUploadedHash] = useState('')
+  const isWalletConnected = useMemo(() => wallet.status === 'connected', [wallet])
 
   if (uploadedHash) {
     return <SnippetCreated uploadedHash={uploadedHash} />
   }
     
-  const isWalletConnected = useMemo(() => wallet.status === 'connected', [wallet])
     
   return (
     <div className={styles.container}>
