@@ -31,19 +31,22 @@ export default function TokenSelector({ onSelected, selectedChainId }: TokenSele
     }, [selectedChainId])
 
     const { data } = useSWR(tokenListURI, axiosSWRFetcher)
-    const tokenList = useMemo(() => data as StandardTokenList, [data])
 
-    const onTokenSelected = (address: string) => {
-        const targetToken = tokenList.tokens.find((val) => val.address === address);
+    const tokensOnCurrentChain = useMemo(() => {
+        return (data as StandardTokenList).tokens.filter(t => t.chainId === selectedChainId)
+    }, [data, selectedChainId])
+
+    const onTokenSelected = useCallback((address: string) => {
+        const targetToken = tokensOnCurrentChain.find((val) => val.address === address);
         if (targetToken) onSelected(targetToken)
-    }
+    }, [tokensOnCurrentChain, onSelected])
 
     if (!data) return <p>Loading Token List...</p>
 
     return <PageContainer>
         <Select placeholder="Select Token" onChange={v => onTokenSelected(v as string)}>
             {
-                tokenList.tokens.map(token =>
+                tokensOnCurrentChain.map(token =>
                     <Select.Option
                         value={token.address}
                         key={token.address}
