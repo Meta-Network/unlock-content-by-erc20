@@ -33,6 +33,7 @@ export default function TokenSelector({ onSelected, selectedChainId }: TokenSele
     const { data } = useSWR(tokenListURI, axiosSWRFetcher)
 
     const tokensOnCurrentChain = useMemo(() => {
+        if (!data) return []
         return (data as StandardTokenList).tokens.filter(t => t.chainId === selectedChainId)
     }, [data, selectedChainId])
 
