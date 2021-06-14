@@ -8,6 +8,7 @@ import { useRecoilState } from 'recoil';
 import { chainIdState } from '../stateAtoms/chainId.atom';
 import { ChainIdToName } from '../constant';
 import { useMemo } from 'react';
+import GuideToConnect from '../components/GuideToConnect';
 // dynamic load
 const CreateSnippet = dynamic(() => import("../components/Create/CreateSnippet"), { ssr: false }) ;
 const SnippetCreated = dynamic(() => import('../components/Create/SnippetCreated'), { ssr: false });
@@ -15,8 +16,6 @@ const SnippetCreated = dynamic(() => import('../components/Create/SnippetCreated
 
 export default function CreateSnippetPage() {
   const wallet = useWallet()
-
-  const [chainId, setChainId] = useRecoilState(chainIdState)
 
   const [uploadedHash, setUploadedHash] = useState('')
 
@@ -37,20 +36,7 @@ export default function CreateSnippetPage() {
       <main className={styles.main}>
         {
         !isWalletConnected ?
-          <>
-            <Text h1>🤔 Please connect your wallet</Text>
-            <Text h4>👮‍♀️ Because We'll need your signature to identify you. </Text>
-            <Text>🔐 We only require your digital signature on content hash. 
-                <br />
-                Feel free to 
-                <a href="https://eips.ethereum.org/EIPS/eip-712" target="_blank">check out tech spec</a>
-                about Ethereum digital signature that we are using now.
-            </Text>
-            <p>Connected to Network: { ChainIdToName[chainId] || '❌ Not supported Network' }</p>
-            <p>Connect Wallet by</p>
-            <Button onClick={() => wallet.connect('injected')}>MetaMask</Button>
-            {/* <button onClick={() => wallet.connect('walletconnect')}>Wallet Connect</button> */}
-          </>
+          <GuideToConnect />
           : 
             <>
               <CreateSnippet onSent={async (res) => {
