@@ -1,39 +1,11 @@
 import Head from 'next/head'
-import dynamic from "next/dynamic";
 import Image from 'next/image'
-import React, { useCallback, useState } from 'react'
-import { useWallet } from 'use-wallet'
-import { Button, Description, Input, Note, Text } from "@geist-ui/react";
-import { getEIP712Profile } from '../constant/EIP712Domain'
-import { useSigner } from '../hooks/useSigner'
+import React from 'react'
 import styles from '../styles/Home.module.css'
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { chainIdState } from '../stateAtoms/chainId.atom';
-import { StandardTokenProfile } from '../typing';
-import { BigNumber, utils } from 'ethers';
-import axios from 'axios';
-import { ChainIdToName } from '../constant';
-import TokenSelector from '../components/TokenSelector';
 import LandingPage from '../components/landing';
-// dynamic load
-const CreateSnippet = dynamic(() => import("../components/CreateSnippet"), { ssr: false }) ;
-const SnippetCreated = dynamic(() => import('../components/SnippetCreated'), { ssr: false });
 
 
 export default function Home() {
-  const wallet = useWallet()
-  const { signer, isSignerReady } = useSigner()
-
-  const [chainId] = useRecoilState(chainIdState)
-
-  const [uploadedHash, setUploadedHash] = useState('')
-
-
-
-  if (uploadedHash) {
-    return <SnippetCreated uploadedHash={uploadedHash} />
-  }
-
   return (
     <div className={styles.container}>
       <Head>
