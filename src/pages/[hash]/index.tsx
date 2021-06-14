@@ -17,6 +17,7 @@ import { getEIP712Profile } from "../../constant/EIP712Domain";
 import { useWallet } from "use-wallet";
 import { ProfileCard } from "../../components/requirement/ProfileCard";
 import UnlockNotice from "../../components/post/UnlockNotice";
+import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
@@ -41,9 +42,21 @@ export default function Post() {
     //     if (hash) fetchData()
     // }, [hash, fetchData])
 
-    if (errorOnRequirement)
-        return <p>Bad hash, please check the url and try again.</p>
-
+    if (errorOnRequirement) {
+        if (axios.isAxiosError(errorOnRequirement)) {
+            if (errorOnRequirement.response?.status === 404) {
+                return <p>No requirement have been found, so not displaying until there is a requirement.
+                    <br />
+                    If you are the owner of this snippet,
+                    please <Link href={`/${hash}/requirement`}>set requirement</Link>
+                </p>
+            }
+        }
+        return <p>
+            Bad hash, please check the url and try again.
+            <pre>{JSON.stringify(errorOnRequirement)}</pre>
+        </p>
+    }
 
     if (decryptError) {
         console.info('error when decrypt: ', decryptError)

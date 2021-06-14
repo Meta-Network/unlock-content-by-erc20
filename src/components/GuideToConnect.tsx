@@ -20,7 +20,8 @@ export default function GuideToConnect() {
                 Feel free to 
                 <a href="https://eips.ethereum.org/EIPS/eip-712" target="_blank"> check out tech spec </a>
                 about Ethereum digital signature that we are using now.
-            </Text>
+        </Text>
+            {/* @todo: chain selection for wallet connect */}
             <p>Connected to Network: { ChainIdToName[chainId] || '❌ Not supported Network' }</p>
             <p>Connect Wallet by: </p>
             <Button type="secondary" onClick={() => wallet.connect('injected')}>MetaMask</Button>
