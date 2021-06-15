@@ -77,9 +77,10 @@ export default function TokenSelector({ onSelected, selectedChainId, children }:
                 </Modal.Subtitle>
             <Modal.Content>
                 <Input placeholder="Search by name or paste address..."
-                    onChange={(e) => setSearchInput(e.target.value)}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        className={style.searchInput}
                         width="100%" />
-                    <Grid.Container gap={2} justify="center" style={{ marginTop: '1rem' }}>
+                    <Grid.Container gap={2} justify="center" className={style.tokenListContainer}>
                         {
                             tokensOnCurrentChain.map(token =>
                                 <Grid xs className={style.clickable} onClick={() => {

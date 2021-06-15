@@ -13,3 +13,13 @@
   /* opacity: 0.4; */
   color: white !important;
 }
+
+.searchInput {
+  margin: 1rem 0;
+}
+
+.tokenListContainer {
+  margin-top: 1rem;
+  overflow: scroll;
+  max-height: 50vh;
+}
