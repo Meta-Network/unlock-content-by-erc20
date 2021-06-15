@@ -8,7 +8,7 @@ import useSWR from "swr";
 import { axiosSWRFetcher } from "../utils";
 import QuestionCircle from '@geist-ui/react-icons/questionCircle'
 import { utils } from "ethers";
-import { ChainId, ChainIdToName } from "../constant";
+import { ChainId, ChainIdToName, ZERO_ADDRESS } from "../constant";
 import { useERC20 } from "../hooks/useERC20";
 
 type TokenSelectorParams = {
@@ -42,16 +42,16 @@ export default function TokenSelector({ onSelected, selectedChainId, children }:
 
         if (searchInput === '') return onlyThisChain
         else if (isContractAddress) {
-            // @todo: should be the input token only
             const findInList = onlyThisChain.find((t) => utils.getAddress(t.address) === utils.getAddress(searchInput))
             if (findInList) return [findInList]
-            if (!tokenProfile) return []
+            if (tokenProfile.tokenAddress === ZERO_ADDRESS) return []
             return [{
                 chainId: selectedChainId,
                 address: searchInput,
                 logoURI: 'https://raw.githubusercontent.com/ant-design/ant-design-icons/master/packages/icons-svg/svg/outlined/question-circle.svg',
                 name: tokenProfile.name,
                 symbol: tokenProfile.symbol,
+                decimals: tokenProfile.decimals
             }] as StandardTokenProfile[]
         } else {
             // is search on name then, go
@@ -59,11 +59,6 @@ export default function TokenSelector({ onSelected, selectedChainId, children }:
         }
 
     }, [data, selectedChainId, searchInput, isContractAddress, tokenProfile])
-
-    // const onTokenSelected = useCallback((address: string) => {
-    //     const targetToken = tokensOnCurrentChain.find((val) => val.address === address);
-    //     if (targetToken) onSelected(targetToken)
-    // }, [tokensOnCurrentChain, onSelected])
 
     if (!data) return <p>Loading Token List...</p>
 
@@ -85,6 +80,7 @@ export default function TokenSelector({ onSelected, selectedChainId, children }:
                         className={style.searchInput}
                         width="100%" />
                     <Grid.Container gap={2} justify="center" className={style.tokenListContainer}>
+                        { tokensOnCurrentChain.length === 0 && isContractAddress && <p>Searching... If you wait too long, please make sure that address is right, or check your network.</p> }
                         {
                             tokensOnCurrentChain.map(token =>
                                 <Grid xs className={style.clickable} onClick={() => {
