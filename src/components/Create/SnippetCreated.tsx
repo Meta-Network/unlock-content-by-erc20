@@ -103,11 +103,13 @@ export default function SnippetCreated({ uploadedHash, ...params }: Params) {
               
               <Description title="Which Token hodl to unlock?" content={
                   // <Input placeholder="e.g 0x114514...1919810" onChange={e => setToken(e.target.value)} width="50%" />
-                  <TokenSelector
-                      selectedChainId={targetChainId}
-                      onSelected={(profile) => {
-                          setToken(profile)
-                      }} />
+                    <React.Suspense fallback={<p>Loading...</p>}>      
+                      <TokenSelector
+                        selectedChainId={targetChainId}
+                        onSelected={(profile) => {
+                            setToken(profile)
+                        }} />
+              </React.Suspense>
               } />
               { targetToken && <Description title="The Minimum hodl requirement:" content={
                   <Input placeholder="e.g 114514.1919" width="50%"

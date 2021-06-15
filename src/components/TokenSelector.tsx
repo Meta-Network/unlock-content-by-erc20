@@ -1,15 +1,15 @@
 import React, { useMemo, useState, PropsWithChildren } from "react";
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
-import { StandardTokenList, StandardTokenProfile } from "../typing";
+import { StandardTokenProfile } from "../typing";
 import style from "./styles/TokenSelector.module.css";
 import { Button, Grid, Input, Modal, Text, Tooltip, useModal, User } from "@geist-ui/react";
-import useSWR from "swr";
-import { axiosSWRFetcher } from "../utils";
 import QuestionCircle from '@geist-ui/react-icons/questionCircle'
 import { utils } from "ethers";
 import { ChainId, ChainIdToName, ZERO_ADDRESS } from "../constant";
 import { useERC20 } from "../hooks/useERC20";
+import { useRecoilValue } from "recoil";
+import { currentTokenList } from "../stateAtoms/tokenList.atom";
 
 type TokenSelectorParams = {
     selectedChainId: number;
@@ -25,24 +25,21 @@ export default function TokenSelector({ onSelected, selectedChainId, children }:
     const isContractAddress = useMemo(() => utils.isAddress(searchInput), [searchInput]);
     const { tokenProfile } = useERC20(isContractAddress ? searchInput : null, selectedChainId)
 
-    const tokenListURI = useMemo(() => {
-        switch (selectedChainId) {
-            case 1: return 'https://gateway.ipfs.io/ipns/tokens.uniswap.org';
-            case 56: return 'https://unpkg.com/@lychees/default-token-list@1.1.10/build/uniscam-default.tokenlist.json';
-            default: return null;
-        }
-    }, [selectedChainId])
+    // const tokenListURI = useMemo(() => {
+    //     switch (selectedChainId) {
+    //         case 1: return 'https://gateway.ipfs.io/ipns/tokens.uniswap.org';
+    //         case 56: return 'https://unpkg.com/@lychees/default-token-list@1.1.10/build/uniscam-default.tokenlist.json';
+    //         default: return null;
+    //     }
+    // }, [selectedChainId])
 
-    const { data } = useSWR(tokenListURI, axiosSWRFetcher)
+    // const { data } = useSWR(tokenListURI, axiosSWRFetcher)
+    const filteredTokenList = useRecoilValue(currentTokenList)
 
     const tokensOnCurrentChain = useMemo(() => {
-        if (!data) return []
-
-        const onlyThisChain = (data as StandardTokenList).tokens.filter(t => t.chainId === selectedChainId)
-
-        if (searchInput === '') return onlyThisChain
+        if (searchInput === '') return filteredTokenList
         else if (isContractAddress) {
-            const findInList = onlyThisChain.find((t) => utils.getAddress(t.address) === utils.getAddress(searchInput))
+            const findInList = filteredTokenList.find((t) => utils.getAddress(t.address) === utils.getAddress(searchInput))
             if (findInList) return [findInList]
             if (tokenProfile.tokenAddress === ZERO_ADDRESS) return []
             return [{
@@ -55,12 +52,12 @@ export default function TokenSelector({ onSelected, selectedChainId, children }:
             }] as StandardTokenProfile[]
         } else {
             // is search on name then, go
-            return onlyThisChain.filter(t => t.name.includes(searchInput) || t.symbol.includes(searchInput))
+            return filteredTokenList.filter(t => t.name.includes(searchInput) || t.symbol.includes(searchInput))
         }
 
-    }, [data, selectedChainId, searchInput, isContractAddress, tokenProfile])
+    }, [filteredTokenList, selectedChainId, searchInput, isContractAddress, tokenProfile])
 
-    if (!data) return <p>Loading Token List...</p>
+    // if (!filteredTokenList) return <p>Loading Token List...</p>
 
     return (
         <>

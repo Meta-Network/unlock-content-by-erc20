@@ -114,11 +114,13 @@ export default function SetRequirementPage() {
         <Description title="Which Token hodl to unlock?" content={
             <div>
                 { targetToken && <User name={targetToken.symbol} src={targetToken.logoURI} /> }
-                <TokenSelector
-                    selectedChainId={targetChainId}
-                    onSelected={setToken}>
-                    { targetToken ? 'Change' : 'Select' }
-                </TokenSelector>
+                <React.Suspense fallback={<p>Loading...</p>}>
+                    <TokenSelector
+                        selectedChainId={targetChainId}
+                        onSelected={setToken}>
+                        { targetToken ? 'Change' : 'Select' }
+                        </TokenSelector>
+                </React.Suspense>
             </div>
         } />
         { targetToken && <Description title="The Minimum hodl requirement:" content={
