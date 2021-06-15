@@ -3,9 +3,10 @@ import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { StandardTokenList, StandardTokenProfile } from "../typing";
 import style from "./styles/TokenSelector.module.css";
-import { Button, Grid, Input, Modal, Text, useModal, User } from "@geist-ui/react";
+import { Button, Grid, Input, Modal, Text, Tooltip, useModal, User } from "@geist-ui/react";
 import useSWR from "swr";
 import { axiosSWRFetcher } from "../utils";
+import QuestionCircle from '@geist-ui/react-icons/questionCircle'
 import { utils } from "ethers";
 import { ChainId, ChainIdToName } from "../constant";
 import { useERC20 } from "../hooks/useERC20";
@@ -72,8 +73,11 @@ export default function TokenSelector({ onSelected, selectedChainId, children }:
         <Modal {...bindings}>
             <Modal.Title>Select Token</Modal.Title>
                 <Modal.Subtitle>
-                    Current List: xxxxxxx Change List<br />
-                    👛 Current Chain: {ChainIdToName[selectedChainId as ChainId] || 'Not Supported'}
+                    👛 List for Chain: {ChainIdToName[selectedChainId as ChainId] || 'Not Supported'}
+                    <Tooltip
+                        text={'If you want to switch your network, switch that in your wallet'}>
+                        <QuestionCircle size="0.875rem" />
+                    </Tooltip>
                 </Modal.Subtitle>
             <Modal.Content>
                 <Input placeholder="Search by name or paste address..."
@@ -86,7 +90,9 @@ export default function TokenSelector({ onSelected, selectedChainId, children }:
                                 <Grid xs className={style.clickable} onClick={() => {
                                         onSelected(token)
                                         setVisible(false)
-                                    }}>
+                                }}
+                                    key={token.address}
+                                >
                                     <User src={token.logoURI} name={token.symbol} >
                                         <Text>{ token.address.slice(0,6) }...{ token.address.slice(-4) }</Text>
                                     </User>
