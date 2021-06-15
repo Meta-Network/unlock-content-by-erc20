@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, PropsWithChildren } from "react";
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { StandardTokenList, StandardTokenProfile } from "../typing";
@@ -16,7 +16,7 @@ type TokenSelectorParams = {
 }
 
 
-export default function TokenSelector({ onSelected, selectedChainId }: TokenSelectorParams) {
+export default function TokenSelector({ onSelected, selectedChainId, children }: PropsWithChildren<TokenSelectorParams>) {
     const { visible, setVisible, bindings } = useModal()
     const [searchInput, setSearchInput] = useState('')
 
@@ -67,7 +67,7 @@ export default function TokenSelector({ onSelected, selectedChainId }: TokenSele
 
     return (
         <>
-        <Button auto onClick={() => setVisible(true)}>Select Token</Button>
+        <Button auto onClick={() => setVisible(true)}>{ children || 'Select Token'}</Button>
         <Modal {...bindings}>
             <Modal.Title>Select Token</Modal.Title>
                 <Modal.Subtitle>

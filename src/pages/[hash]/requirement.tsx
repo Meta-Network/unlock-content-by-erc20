@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Button, Input, Radio, Text, Description, Card, Tooltip, Note } from "@geist-ui/react";
+import { Button, Input, Radio, Text, Description, Card, Tooltip, Note, User } from "@geist-ui/react";
 import styled from "styled-components"
 import useSWR, { mutate } from "swr";
 import { BigNumber } from "@ethersproject/bignumber";
@@ -112,12 +112,14 @@ export default function SetRequirementPage() {
 
         
         <Description title="Which Token hodl to unlock?" content={
-            // <Input placeholder="e.g 0x114514...1919810" onChange={e => setToken(e.target.value)} width="50%" />
-            <TokenSelector
-                selectedChainId={targetChainId}
-                onSelected={(profile) => {
-                    setToken(profile)
-                }} />
+            <div>
+                { targetToken && <User name={targetToken.symbol} src={targetToken.logoURI} /> }
+                <TokenSelector
+                    selectedChainId={targetChainId}
+                    onSelected={setToken}>
+                    { targetToken ? 'Change' : 'Select' }
+                </TokenSelector>
+            </div>
         } />
         { targetToken && <Description title="The Minimum hodl requirement:" content={
             <Input placeholder="e.g 114514.1919" width="50%"
