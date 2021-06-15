@@ -2,6 +2,7 @@ import React, { useMemo, useState, PropsWithChildren } from "react";
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { StandardTokenList, StandardTokenProfile } from "../typing";
+import style from "./styles/TokenSelector.module.css";
 import { Button, Grid, Input, Modal, Text, useModal, User } from "@geist-ui/react";
 import useSWR from "swr";
 import { axiosSWRFetcher } from "../utils";
@@ -81,11 +82,11 @@ export default function TokenSelector({ onSelected, selectedChainId, children }:
                     <Grid.Container gap={2} justify="center" style={{ marginTop: '1rem' }}>
                         {
                             tokensOnCurrentChain.map(token =>
-                                <Grid xs>
-                                    <User src={token.logoURI} name={token.symbol} onClick={() => {
+                                <Grid xs className={style.clickable} onClick={() => {
                                         onSelected(token)
                                         setVisible(false)
                                     }}>
+                                    <User src={token.logoURI} name={token.symbol} >
                                         <Text>{ token.address.slice(0,6) }...{ token.address.slice(-4) }</Text>
                                     </User>
                                 </Grid>

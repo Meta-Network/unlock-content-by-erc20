@@ -1,0 +1,15 @@
+.clickable {
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.clickable:hover {
+  /* opacity: 0.4; */
+  background-color: black;
+  color: white;
+}
+
+.clickable:hover * {
+  /* opacity: 0.4; */
+  color: white !important;
+}
