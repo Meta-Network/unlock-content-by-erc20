@@ -5,6 +5,7 @@ import { BaseErc20Factory } from "../blockchain/contracts/BaseErc20Factory";
 import { ERC20Profile, getProfileOfERC20 } from "../blockchain/erc20Helper";
 import { ChainId, ZERO_ADDRESS } from "../constant";
 import { providers } from "../constant/providers";
+import { useBalance } from "./useBalance";
 import { useSigner } from "./useSigner";
 
 export function useERC20(
@@ -32,7 +33,6 @@ export function useERC20(
     name: "Loading Token Profile",
     symbol: "Please wait",
     decimals: 18, // most the token use 18 decimals
-    balance: BigNumber.from(0),
     updatedAtBlock: 0,
   };
 
@@ -43,16 +43,12 @@ export function useERC20(
   const isProfileLoading = useMemo(() => tokenProfile.updatedAtBlock === 0, [
     tokenProfile,
   ]);
-  const formattedBalance = useMemo(
-    () => utils.formatUnits(tokenProfile.balance, tokenProfile.decimals),
-    [tokenProfile]
-  );
 
   const getProfile = useCallback(async () => {
     if (!token || !chainId) return;
     if (token.address === ZERO_ADDRESS) return;
     resetProfileToLoading();
-    const profile = await getProfileOfERC20(token, chainId, account);
+    const profile = await getProfileOfERC20(token, chainId);
     console.info("profile", profile);
     setTokenProfile(profile);
   }, [token, chainId, account]);
@@ -65,9 +61,9 @@ export function useERC20(
     if (!token || !chainId) return;
     if (token.address === ZERO_ADDRESS) return;
     getProfile();
-    let refreshInterval = setInterval(getProfile, 1000 * updateInterval);
-    return () => clearInterval(refreshInterval);
+    // let refreshInterval = setInterval(getProfile, 1000 * updateInterval);
+    // return () => clearInterval(refreshInterval);
   }, [getProfile, token, updateInterval]);
 
-  return { token, chainId, isProfileLoading, tokenProfile, formattedBalance };
+  return { token, chainId, isProfileLoading, tokenProfile };
 }

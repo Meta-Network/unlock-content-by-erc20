@@ -12,14 +12,12 @@ export type ERC20Profile = {
   name: string;
   symbol: string;
   decimals: number;
-  balance: BigNumber;
   updatedAtBlock: number;
 };
 
 export async function getProfileOfERC20(
   token: BaseErc20,
-  chainId: ChainId,
-  holder: string | null
+  chainId: ChainId
 ): Promise<ERC20Profile> {
   const tokenAddress = token.address;
   console.info("getProfileOfERC20::tokenAddress", tokenAddress);
@@ -28,8 +26,6 @@ export async function getProfileOfERC20(
     token.interface.encodeFunctionData("symbol"),
     token.interface.encodeFunctionData("decimals"),
   ];
-  if (holder)
-    frag.push(token.interface.encodeFunctionData("balanceOf", [holder]));
   const calls = frag.map((callData) => ({
     target: tokenAddress,
     callData,
@@ -50,24 +46,17 @@ export async function getProfileOfERC20(
       "decimals",
       returnData[2]
     );
-    let balance = BigNumber.from(0);
-    if (returnData[3])
-      [balance] = token.interface.decodeFunctionResult(
-        "balanceOf",
-        returnData[3]
-      );
 
     return {
       updatedAtBlock: blockNumber.toNumber(),
       name,
       symbol,
       decimals,
-      balance,
       tokenAddress,
     };
   } catch (error) {
     console.error("getProfileOfERC20::error", error);
-    return getProfileOfERC20Compatiable(token, chainId, holder);
+    return getProfileOfERC20Compatiable(token, chainId);
   }
 }
 
@@ -76,8 +65,7 @@ export async function getProfileOfERC20(
  */
 export async function getProfileOfERC20Compatiable(
   _token: BaseErc20,
-  chainId: ChainId,
-  holder: string | null
+  chainId: ChainId
 ): Promise<ERC20Profile> {
   const tokenAddress = _token.address;
   const token = ERC20_v0.attach(_token.address).connect(_token.provider);
@@ -89,15 +77,11 @@ export async function getProfileOfERC20Compatiable(
     token.decimals(),
   ]);
   let balance = BigNumber.from(0);
-  if (holder) {
-    balance = await token.balanceOf(holder);
-  }
   return {
     updatedAtBlock: blockNumber,
     name: utils.parseBytes32String(name),
     symbol: utils.parseBytes32String(symbol),
     decimals,
-    balance,
     tokenAddress,
   };
 }
