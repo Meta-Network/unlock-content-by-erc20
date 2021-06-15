@@ -3,10 +3,14 @@ import { atom, selector } from "recoil";
 import { StandardTokenList } from "../typing";
 import { chainIdState } from "./chainId.atom";
 
+export enum TokenListURL {
+  Unisave = "https://unpkg.com/@lychees/default-token-list@1.1.10/build/uniscam-default.tokenlist.json",
+  MatatakiBsc = "https://unpkg.com/@lychees/matataki-token-list@1.0.5/build/unisave-matataki.tokenlist.json",
+}
+
 export const selectedTokenListState = atom<string>({
   key: "selectedTokenListState",
-  default:
-    "https://unpkg.com/@lychees/default-token-list@1.1.10/build/uniscam-default.tokenlist.json",
+  default: TokenListURL.Unisave,
 });
 
 export const customTokenListState = atom({

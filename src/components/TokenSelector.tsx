@@ -3,13 +3,13 @@ import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { StandardTokenProfile } from "../typing";
 import style from "./styles/TokenSelector.module.css";
-import { Button, Grid, Input, Modal, Text, Tooltip, useModal, User } from "@geist-ui/react";
+import { Button, Grid, Input, Modal, Radio, Text, Tooltip, useModal, User } from "@geist-ui/react";
 import QuestionCircle from '@geist-ui/react-icons/questionCircle'
 import { utils } from "ethers";
 import { ChainId, ChainIdToName, ZERO_ADDRESS } from "../constant";
 import { useERC20 } from "../hooks/useERC20";
-import { useRecoilValue } from "recoil";
-import { currentTokenList } from "../stateAtoms/tokenList.atom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { currentTokenList, selectedTokenListState, TokenListURL } from "../stateAtoms/tokenList.atom";
 import { chainIdState } from "../stateAtoms/chainId.atom";
 
 type TokenSelectorParams = {
@@ -72,6 +72,7 @@ export function TokenList({ onSelected }: TokenSelectorParams) {
 
 export default function TokenSelector({ onSelected, children }: PropsWithChildren<TokenSelectorParams>) {
     const { visible, setVisible, bindings } = useModal()
+    const [ selectedTokenList, tokenListSelected ] = useRecoilState(selectedTokenListState)
     // if (!filteredTokenList) return <p>Loading Token List...</p>
     const selectedChainId = useRecoilValue(chainIdState)
 
@@ -87,7 +88,16 @@ export default function TokenSelector({ onSelected, children }: PropsWithChildre
                         <QuestionCircle size="0.875rem" />
                     </Tooltip>
                 </Modal.Subtitle>
-            <Modal.Content>
+                <Modal.Content>
+                    <Radio.Group value={selectedTokenList} useRow onChange={(e) => tokenListSelected(e.toString())}>
+                        <Radio value={TokenListURL.Unisave}>
+                            Unisave Default List
+                        </Radio>
+                        <Radio value={TokenListURL.MatatakiBsc}>
+                            Matataki (BSC) 
+                            <Radio.Desc>Matataki Crosschain Token</Radio.Desc>
+                        </Radio>
+                    </Radio.Group>
                     <React.Suspense fallback={<p>Loading...</p>}>
                         <TokenList onSelected={(t) => {
                             onSelected(t)
