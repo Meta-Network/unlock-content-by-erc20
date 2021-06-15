@@ -1,13 +1,8 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
-import axios from "axios";
+import React, { useMemo, useState } from "react";
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
-import { Editor } from '@toast-ui/react-editor';
-import { StandardTokenList, StandardTokenProfile, UploadReturn } from "../typing";
-import { useWallet } from "use-wallet";
+import { StandardTokenList, StandardTokenProfile } from "../typing";
 import { Button, Grid, Input, Modal, Text, useModal, User } from "@geist-ui/react";
-import { useBoolean } from "ahooks";
-import styled from "styled-components";
 import useSWR from "swr";
 import { axiosSWRFetcher } from "../utils";
 import { utils } from "ethers";
