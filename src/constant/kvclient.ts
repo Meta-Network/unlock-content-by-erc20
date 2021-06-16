@@ -45,4 +45,16 @@ export class WorkerKV {
     const { data } = await KVClient.delete(`/SnippetToKey/${hash}`);
     return data.success;
   }
+  /** CRU on Hash => Owner */
+  static async setOwner(hash: string, owner: string) {
+    const { data } = await KVClient.put<{ success: boolean }>(
+      `/ownerOf/${hash}`,
+      { owner }
+    );
+    return data.success;
+  }
+  static async getOwner(hash: string): Promise<string> {
+    const { data } = await KVClient.get<{ owner: string }>(`/ownerOf/${hash}`);
+    return data.owner;
+  }
 }

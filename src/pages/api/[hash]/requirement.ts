@@ -57,8 +57,12 @@ async function setRequirement(
     return res.status(400).json({ message: "Use DELETE instead" });
   }
   const signer = recoverFromSig(Number(chainId), token, amount, sig);
-  // @todo: check permission with `signer` etc.
-
+  const owner = await WorkerKV.getOwner(hash);
+  console.info("owner:", owner);
+  console.info("signer:", signer);
+  if (utils.getAddress(owner) !== signer) {
+    return res.status(400).json({ message: "Need to be owner to do this" });
+  }
   const success = await WorkerKV.setRequirement(hash, body);
   if (success) res.status(201).json({ message: "ok" });
   else res.status(400).json({ message: "Unknown error" });
@@ -70,8 +74,12 @@ async function removeRequirement(
 ) {
   const { chainId, sig } = body;
   const signer = recoverFromSig(Number(chainId), ZERO_ADDRESS, "0", sig);
-  // @todo: check permission with `signer` etc.
-
+  const owner = await WorkerKV.getOwner(hash);
+  console.info("owner:", owner);
+  console.info("signer:", signer);
+  if (utils.getAddress(owner) !== signer) {
+    return res.status(400).json({ message: "Need to be owner to do this" });
+  }
   const success = await WorkerKV.removeRequirement(hash);
   if (success) res.status(201).json({ message: "ok" });
   else res.status(400).json({ message: "Unknown error" });

@@ -66,6 +66,7 @@ async function upload(
   encrypted.owner = checksumedAuthorWallet;
   const hash = await uploadToPublic(JSON.stringify(encrypted));
   await WorkerKV.setSecretKey(hash, privateKey);
+  await WorkerKV.setOwner(hash, owner);
   await WorkerKV.setRequirement(hash, {
     version: "20210609",
     type: "hodl",
