@@ -11,6 +11,8 @@ import ReCAPTCHA from "react-google-recaptcha";
 import styled from "styled-components";
 import TokenSelector from "../TokenSelector";
 import { BigNumber, utils } from "ethers";
+import { useSigner } from "../../hooks/useSigner";
+import { getEIP712Profile } from "../../constant/EIP712Domain";
 
 type CreateSnippetParams = {
     // callback
@@ -27,6 +29,7 @@ margin: 1rem 0;
 
 export default function CreateSnippet({ onSent }: CreateSnippetParams) {
     const wallet = useWallet()
+    const { signer, isSignerReady } = useSigner()
     const [title, setTitle] = useState('')
     const [targetToken, setToken] = useState<StandardTokenProfile | null>(null)
     const [minimumAmountToHodl, setMinimumAmountToHodl] = useState<string>('0')
@@ -56,11 +59,33 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
         disableSendBtn()
         const contentInput = editorRef.current?.getInstance().getMarkdown()
         try {
+            if (!targetToken) throw new Error('No Token was selected')
+            if (!isSignerReady(signer)) throw new Error('Please connect wallet')
+
+            const sig = await signer._signTypedData(
+                getEIP712Profile(targetToken.chainId),
+                {
+                    Requirement: [
+                        { name: "token", type: "address" },
+                        { name: "amount", type: "uint256" },
+                    ],
+                },
+                {
+                    token: targetToken.address,
+                    amount: parsedAmount
+                }
+            );
             const { data } = await axios.post<UploadReturn>('/api/upload', {
                 title,
                 content: contentInput,
                 owner: wallet.account,
-                captchaValue
+                captchaValue,
+                requirement: {
+                    networkId: targetToken.chainId,
+                    token: targetToken.address,
+                    amount: parsedAmount.toString(),
+                    sig,
+                }
             })
             onSent(data)
         } catch (error) {
@@ -68,7 +93,7 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
         } finally {
             enableSendBtn()
         }
-    }, [title, onSent, editorRef, captchaValue])
+    }, [title, signer, targetToken, parsedAmount, onSent, editorRef, captchaValue])
 
     return <CreateSnippetContainer>
         <Input placeholder='Title for snippet (Optional)' width='100%' onChange={e => setTitle(e.target.value)} />
