@@ -42,10 +42,6 @@ export default function CreateSnippetPage() {
               <CreateSnippet onSent={async (res) => {
                 setUploadedHash(res.hash)
               }} />
-
-              {uploadedHash && <a href={`https://ipfs.fleek.co/ipfs/${uploadedHash}`} target="_blank">Go IPFS to See RAW</a>}
-              {uploadedHash && <a href={`/${uploadedHash}`}>Decrypt and See</a>}
-
           </>
         }
 

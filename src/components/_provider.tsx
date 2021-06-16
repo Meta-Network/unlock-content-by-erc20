@@ -4,9 +4,18 @@ import { RecoilRoot, useRecoilState } from "recoil"
 import { GeistProvider, CssBaseline } from '@geist-ui/react'
 import { chainIdState } from "../stateAtoms/chainId.atom"
 import Listener from "./_listener"
+import { useEffect } from "react"
 
 const UseWalletProviderWithState: React.FC = ({ children }) => {
     const [chainId] = useRecoilState(chainIdState)
+    useEffect(() => {
+        // for the recaptcha component
+        if (process.browser) {
+            (window as any).recaptchaOptions = {
+                useRecaptchaNet: true,
+            };
+        }
+    }, [])
     return (
         <UseWalletProvider
             chainId={chainId}
