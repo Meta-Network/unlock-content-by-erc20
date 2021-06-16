@@ -90,35 +90,11 @@ export default function SnippetCreated({ uploadedHash, ...params }: Params) {
         <Text h4>
           You can share your snippet now or <a href={`/${uploadedHash}`}>just have a look 👀</a>
         </Text>
-        <>
-          <Description title="Token On which Network?" content={
-                  <>
-                      <Text h4>{ChainIdToName[targetChainId]}</Text>
-                      <Note type="secondary" label="Switch network? ">
-                          Switch your network in your metamask. We Supported ETH Mainnet, BSC Mainnet, and some testnets.
-                      </Note>
-                  </>
-              } />
-
-              
-              <Description title="Which Token hodl to unlock?" content={
-                  // <Input placeholder="e.g 0x114514...1919810" onChange={e => setToken(e.target.value)} width="50%" />
-                      <TokenSelector
-                        onSelected={(profile) => {
-                            setToken(profile)
-                        }} />
-              } />
-              { targetToken && <Description title="The Minimum hodl requirement:" content={
-                  <Input placeholder="e.g 114514.1919" width="50%"
-                      onChange={handleAmountInput}
-                  />
-              } />}
-        </>
         <ActionsCard>
           {/* <NextLink href={`/${uploadedHash}/requirement`}> */}
-            <Button shadow type="secondary" onClick={() => SetRequirement()}>🔒 Lock with requirement</Button>
+            <Button shadow onClick={() => SetRequirement()}>🔒 Check / Change requirement</Button>
           {/* </NextLink> */}
-          <Button shadow auto onClick={() => {
+          <Button shadow type="secondary" auto onClick={() => {
             copy(fullUrl)
             setToast({
               type: 'success',

@@ -2,11 +2,6 @@ import Head from 'next/head'
 import dynamic from "next/dynamic";
 import React, { useState } from 'react'
 import { useWallet } from 'use-wallet'
-import { Button, Text } from "@geist-ui/react";
-import styles from '../styles/Home.module.css'
-import { useRecoilState } from 'recoil';
-import { chainIdState } from '../stateAtoms/chainId.atom';
-import { ChainIdToName } from '../constant';
 import { useMemo } from 'react';
 import GuideToConnect from '../components/GuideToConnect';
 // dynamic load
