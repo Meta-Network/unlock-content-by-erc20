@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ReactMarkdown from "react-markdown";
-import { Row, Col, Text, Tooltip, Button } from "@geist-ui/react";
+import { Row, Col, Text, Tooltip, Code, Page } from "@geist-ui/react";
 import { useBoolean } from "ahooks";
 import axios, {AxiosInstance, AxiosError} from "axios";
 import { SnipperForShowing } from "../../typing";
@@ -71,7 +71,7 @@ export default function Post() {
         onError={(err) => { setDErr(err) }}
     />
 
-    return <>
+    return <Page>
         <Text h1>{content.title}</Text>
         <DetailBar>
                 <Tooltip text={content.owner} placement="bottomStart" >
@@ -91,6 +91,12 @@ export default function Post() {
                     {content.content}
                 </ReactMarkdown>
         </div>
-
-    </>
+        <Page.Footer>
+            <Text p size={12}>
+                Disclaimer: The content above is user generated content.
+                <br />
+                If you found this page abuse <Link href="/tos">our Term of Service</Link>, please <Link href="/contact">contact us</Link> for further actions.
+            </Text>
+        </Page.Footer>
+    </Page>
 }
