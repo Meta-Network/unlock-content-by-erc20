@@ -5,12 +5,21 @@ import { useRecoilState } from 'recoil';
 import { chainIdState } from '../stateAtoms/chainId.atom';
 import { ChainIdToName } from '../constant';
 import React, { useMemo } from 'react';
+import { useEffect } from "react";
 const GuideToConnectContainer = styled.div``
 
 export default function GuideToConnect() {
     const wallet = useWallet()
     const [chainId, setChainId] = useRecoilState(chainIdState)
     // const isWalletConnected = useMemo(() => wallet.status === 'connected', [wallet])
+
+    useEffect(() => {
+        if ((window as any).ethereum && (window as any).ethereum.chainId) {
+            // setup the connect chainId if metamask was detected
+            const mmChainId = (window as any).ethereum.chainId;
+            if (Number(mmChainId) !== chainId) setChainId(mmChainId);
+        }
+    }, [])
 
     return <GuideToConnectContainer>
         <Text h1>🤔 Please connect your wallet</Text>
