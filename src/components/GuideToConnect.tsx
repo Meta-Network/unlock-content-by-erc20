@@ -22,7 +22,7 @@ export default function GuideToConnect() {
                 about Ethereum digital signature that we are using now.
         </Text>
             {/* @todo: chain selection for wallet connect */}
-            <p>Connected to Network: { ChainIdToName[chainId] || '❌ Not supported Network' }</p>
+            <p>Connected to Network: { ChainIdToName[chainId] || '❌ Not supported Network' }(ID: {chainId})</p>
             <p>Connect Wallet by: </p>
             <Button type="secondary" onClick={() => wallet.connect('injected')}>MetaMask</Button>
             {/* <button onClick={() => wallet.connect('walletconnect')}>Wallet Connect</button> */}
