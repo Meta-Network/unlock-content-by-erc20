@@ -3,12 +3,14 @@ import axios from "axios";
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { Editor } from '@toast-ui/react-editor';
-import { UploadReturn } from "../../typing";
+import { StandardTokenProfile, UploadReturn } from "../../typing";
 import { useWallet } from "use-wallet";
-import { Button, Input } from "@geist-ui/react";
+import { Button, Description, Grid, Input, User } from "@geist-ui/react";
 import { useBoolean } from "ahooks";
 import ReCAPTCHA from "react-google-recaptcha";
 import styled from "styled-components";
+import TokenSelector from "../TokenSelector";
+import { BigNumber, utils } from "ethers";
 
 type CreateSnippetParams = {
     // callback
@@ -26,9 +28,29 @@ margin: 1rem 0;
 export default function CreateSnippet({ onSent }: CreateSnippetParams) {
     const wallet = useWallet()
     const [title, setTitle] = useState('')
+    const [targetToken, setToken] = useState<StandardTokenProfile | null>(null)
+    const [minimumAmountToHodl, setMinimumAmountToHodl] = useState<string>('0')
+
+    const handleAmountInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+            try {
+                utils.parseUnits(e.target.value, targetToken?.decimals || 18)
+                setMinimumAmountToHodl(e.target.value)
+            } catch (error) {
+                alert('Bad Element deteced, please check your number input.')
+            }
+    }, [targetToken, targetToken?.decimals])
+    
+    const parsedAmount = useMemo(() => {
+        return utils.parseUnits(minimumAmountToHodl, targetToken?.decimals || 18)
+    }, [minimumAmountToHodl, targetToken])
+
     const [captchaValue, setCatpchaVal] = useState<string | null>(null)
     const [ isSending, { setFalse: enableSendBtn, setTrue: disableSendBtn } ] = useBoolean(false)
     const editorRef = useRef<Editor>() as React.MutableRefObject<Editor>
+
+    const isNotEnoughToSend = useMemo(() => {
+        return isSending || captchaValue === null
+    }, [isSending, captchaValue])
 
     const send = useCallback(async () => {
         disableSendBtn()
@@ -54,21 +76,49 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
             initialValue={`## Sub Title (If you needed)
 Content`}
         previewStyle="vertical"
-        height="600px"
+        height="450px"
         initialEditType="markdown"
         useCommandShortcut={true}
         ref={editorRef}
         />
         <MarginedContainer>
-            <ReCAPTCHA
-                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_KEY || ''}
-                onChange={setCatpchaVal}
-            />
+            
         </MarginedContainer>
-        <div className="exported-md" style={{ margin: "4px" }}>
-            <Button type="secondary" onClick={() => send()} loading={isSending}
-                disabled={isSending || !captchaValue}
-            >Post this snippet</Button>
-        </div>
+        <Grid.Container gap={2} justify="center">
+            <Grid md={8}>
+                <Description title="Which Token hodl to unlock?" content={
+                <div style={{ display: 'flex' }}>
+                    { targetToken && <User name={targetToken.symbol} src={targetToken.logoURI} /> }
+                    <TokenSelector
+                        onSelected={(profile) => {
+                            setToken(profile)
+                        }}>
+                    { targetToken ? 'Change' : 'Select' }
+                    </TokenSelector>
+                </div>
+                } />
+            </Grid>
+            <Grid md={8}>
+                {/* {
+                    targetToken &&  */}
+                        <Description title="The Minimum hodl requirement:" content={
+                            <Input placeholder="e.g 114514.1919" width="100%"
+                                onChange={handleAmountInput}
+                            />
+                        } />
+                {/* } */}
+            </Grid>
+            <Grid md={8}>
+                <ReCAPTCHA
+                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_KEY || ''}
+                    onChange={setCatpchaVal}
+                />
+            </Grid>
+            <Grid>
+                <Button type="secondary" onClick={() => send()} loading={isSending}
+                    disabled={isNotEnoughToSend}
+                    >Post this snippet</Button>
+            </Grid>
+        </Grid.Container>
     </CreateSnippetContainer>
 }
