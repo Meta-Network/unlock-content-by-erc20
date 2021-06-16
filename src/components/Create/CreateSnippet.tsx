@@ -49,8 +49,8 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
     const editorRef = useRef<Editor>() as React.MutableRefObject<Editor>
 
     const isNotEnoughToSend = useMemo(() => {
-        return isSending || captchaValue === null
-    }, [isSending, captchaValue])
+        return isSending || captchaValue === null || parsedAmount.eq(0)
+    }, [isSending, captchaValue, parsedAmount])
 
     const send = useCallback(async () => {
         disableSendBtn()
