@@ -3,10 +3,10 @@ import dynamic from "next/dynamic";
 import React, { useState } from 'react'
 import { useWallet } from 'use-wallet'
 import { useMemo } from 'react';
-import GuideToConnect from '../components/GuideToConnect';
 // dynamic load
 const CreateSnippet = dynamic(() => import("../components/Create/CreateSnippet"), { ssr: false }) ;
 const SnippetCreated = dynamic(() => import('../components/Create/SnippetCreated'), { ssr: false });
+const GuideToConnect = dynamic(() => import('../components/GuideToConnect'), { ssr: false });
 
 
 export default function CreateSnippetPage() {

@@ -16,7 +16,9 @@ import { ProfileCard } from "../../components/requirement/ProfileCard";
 import { useSigner } from "../../hooks/useSigner";
 import { getEIP712Profile } from "../../constant/EIP712Domain";
 import { useWallet } from "use-wallet";
-import GuideToConnect from "../../components/GuideToConnect";
+import dynamic from "next/dynamic";
+
+const GuideToConnect = dynamic(() => import('../../components/GuideToConnect'), { ssr: false });
 
 const SetRequirementContainer = styled.div``
 const BtnActions = styled.div``
