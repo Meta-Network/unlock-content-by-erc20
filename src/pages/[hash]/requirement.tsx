@@ -50,7 +50,7 @@ export default function SetRequirementPage() {
         }
         if (!isSignerReady(signer)) return;
 
-        const sig = await signer._signTypedData(getEIP712Profile(targetChainId),
+        const sig = await signer._signTypedData(getEIP712Profile(targetToken.chainId),
         {
             Requirement: [
                 { name: "token", type: "address" },
@@ -65,33 +65,13 @@ export default function SetRequirementPage() {
         await axios.put(`/api/${hash}/requirement`, {
             version: '20210609',
             type: 'hodl',
-            networkId: targetChainId,
-            token: targetToken?.address,
+            networkId: targetToken.chainId,
+            token: targetToken.address,
             amount: minimumAmountToHodl.toString(),
             sig,
         })
         alert('Requirement is set, the update will be good in 2 min.')
     }, [hash, targetToken, targetChainId, minimumAmountToHodl, signer])
-
-    const RmRequirement = useCallback(async () => {
-        if (typeof hash !== 'string') return;
-        if (!isSignerReady(signer)) return;
-
-        const sig = await signer._signTypedData(getEIP712Profile(targetChainId),
-        {
-            Requirement: [
-                { name: "token", type: "address" },
-                { name: "amount", type: "uint256" },
-            ],
-        }, 
-        {
-            token: ZERO_ADDRESS,
-            amount: '0'
-        })
-        await axios.delete(`/api/${hash}/requirement`, { data: { sig, chainId: targetChainId } })
-        mutate(`/api/${hash}/requirement`)
-        alert('Requirement is removed, the update will be good in 2 min.')
-    }, [hash])
 
     if (wallet.status !== 'connected') {
         return <GuideToConnect />
@@ -127,7 +107,6 @@ export default function SetRequirementPage() {
         } />}
         <BtnActions>
             <Button type="secondary" onClick={SetRequirement}>Sign & Set</Button>
-            <Button type="error" disabled={!currentRequirement} onClick={RmRequirement}>Remove Requirement</Button>
         </BtnActions>
     </SetRequirementContainer>
 }

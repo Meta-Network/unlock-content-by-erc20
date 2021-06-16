@@ -52,11 +52,11 @@ async function setRequirement(
   body: any,
   res: NextApiResponse<any>
 ) {
-  const { chainId, token, amount, sig } = body;
+  const { networkId, token, amount, sig } = body;
   if (BigNumber.from(amount).eq(0)) {
     return res.status(400).json({ message: "Use DELETE instead" });
   }
-  const signer = recoverFromSig(Number(chainId), token, amount, sig);
+  const signer = recoverFromSig(networkId, token, amount, sig);
   const owner = await WorkerKV.getOwner(hash);
   console.info("owner:", owner);
   console.info("signer:", signer);
@@ -72,8 +72,8 @@ async function removeRequirement(
   body: any,
   res: NextApiResponse<any>
 ) {
-  const { chainId, sig } = body;
-  const signer = recoverFromSig(Number(chainId), ZERO_ADDRESS, "0", sig);
+  const { networkId, sig } = body;
+  const signer = recoverFromSig(networkId, ZERO_ADDRESS, "0", sig);
   const owner = await WorkerKV.getOwner(hash);
   console.info("owner:", owner);
   console.info("signer:", signer);
