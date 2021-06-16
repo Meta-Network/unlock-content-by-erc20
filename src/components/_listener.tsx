@@ -11,7 +11,7 @@ export default function Listener() {
         if (!process.browser) return
 
         // if (window as any).ethereum injected
-        if ((window as any).ethereum) {
+        if ((window as any).ethereum && (window as any).ethereum.chainId) {
             // setup the connect chainId if metamask was detected
             const initialChainId = (window as any).ethereum.chainId;
             setChainId(Number(initialChainId));
@@ -20,6 +20,6 @@ export default function Listener() {
                 setChainId(Number(newChainId) as ChainId)
             })
         }
-    }, [process, setChainId])
+    }, [setChainId])
     return <></>
 }
