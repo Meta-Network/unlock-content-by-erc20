@@ -48,10 +48,8 @@ async function upload(
   const { content, title, captchaValue, requirement } = req.body;
   const { networkId, token, amount, sig } = requirement;
   const owner = recoverFromSig(Number(networkId), token, amount, sig);
-  console.info("upload::owner: ", owner);
   // check the captchaValue
   const captchaVerifyResult = await verifyRecaptcha(captchaValue);
-  console.info("captchaVerifyResult", captchaVerifyResult);
   if (!captchaVerifyResult.success)
     return res.status(400).json({ message: "You failed the captcha" });
 
@@ -68,6 +66,13 @@ async function upload(
   encrypted.owner = checksumedAuthorWallet;
   const hash = await uploadToPublic(JSON.stringify(encrypted));
   await WorkerKV.setSecretKey(hash, privateKey);
+  await WorkerKV.setRequirement(hash, {
+    version: "20210609",
+    type: "hodl",
+    networkId,
+    token,
+    amount,
+  });
   return res.status(201).json({ encrypted, hash, privateKey });
 }
 
