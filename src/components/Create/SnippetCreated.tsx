@@ -1,18 +1,9 @@
 import Head from 'next/head'
 import NextLink from "next/link";
-import React, { useCallback, useState } from 'react'
-import { Button, Text, useClipboard, useToasts, Description, Input, Note } from "@geist-ui/react";
+import React, {  } from 'react'
+import { Button, Text, useClipboard, useToasts } from "@geist-ui/react";
 import styles from '../../styles/Home.module.css'
 import styled from 'styled-components';
-import axios from 'axios';
-import { BigNumber, utils } from 'ethers';
-import { useRecoilValue } from 'recoil';
-import { ChainIdToName } from '../../constant';
-import { getEIP712Profile } from '../../constant/EIP712Domain';
-import { useSigner } from '../../hooks/useSigner';
-import { chainIdState } from '../../stateAtoms/chainId.atom';
-import { StandardTokenProfile } from '../../typing';
-import TokenSelector from '../TokenSelector';
 
 type Params = {
     uploadedHash: string;
@@ -27,51 +18,6 @@ const ActionsCard = styled.div`
 `
 
 export default function SnippetCreated({ uploadedHash, ...params }: Params) {
-  const { signer, isSignerReady } = useSigner()
-  const targetChainId = useRecoilValue(chainIdState)
-  const [targetToken, setToken] = useState<StandardTokenProfile | null>(null)
-
-  const [minimumAmountToHodl, setMinimumAmountToHodl] = useState<BigNumber>(BigNumber.from(0))
-
-  const handleAmountInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!targetToken) return
-        try {
-            const parsedAmount = utils.parseUnits(e.target.value, targetToken.decimals)
-            setMinimumAmountToHodl(parsedAmount)
-        } catch (error) {
-            alert('Bad Element deteced, please check your number input.')
-        }
-  },[ targetToken ])
-
-  const SetRequirement = useCallback(async () => {
-    if (!targetToken) {
-      alert('No token was selected, canceled.')
-      return;
-    }
-    if (!isSignerReady(signer)) return;
-
-    const sig = await signer._signTypedData(getEIP712Profile(targetChainId),
-      {
-        Requirement: [
-          { name: "token", type: "address" },
-          { name: "amount", type: "uint256" },
-        ],
-      },
-      {
-        token: targetToken.address,
-        amount: minimumAmountToHodl
-      })
-
-    await axios.put(`/api/${uploadedHash}/requirement`, {
-      version: '20210609',
-      type: 'hodl',
-      networkId: targetChainId,
-      token: targetToken?.address,
-      amount: minimumAmountToHodl.toString(),
-      sig,
-    })
-    alert('Requirement is set, the update will be good in 2 min.')
-  }, [targetToken, uploadedHash, targetChainId, minimumAmountToHodl, signer]);
 
   const [, setToast] = useToasts()
   const { copy } = useClipboard()
@@ -91,9 +37,9 @@ export default function SnippetCreated({ uploadedHash, ...params }: Params) {
           You can share your snippet now or <a href={`/${uploadedHash}`}>just have a look 👀</a>
         </Text>
         <ActionsCard>
-          {/* <NextLink href={`/${uploadedHash}/requirement`}> */}
-            <Button shadow onClick={() => SetRequirement()}>🔒 Check / Change requirement</Button>
-          {/* </NextLink> */}
+          <NextLink href={`/${uploadedHash}/requirement`}>
+            <Button shadow >🔒 Check / Change requirement</Button>
+          </NextLink>
           <Button shadow type="secondary" auto onClick={() => {
             copy(fullUrl)
             setToast({
