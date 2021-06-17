@@ -62,7 +62,7 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
             if (!targetToken) throw new Error('No Token was selected')
             if (!isSignerReady(signer)) throw new Error('Please connect wallet')
 
-            const sig = await signRequirement(signer, targetToken, parsedAmount);
+            const {sig, deadline} = await signRequirement(signer, targetToken, parsedAmount);
             const { data } = await axios.post<UploadReturn>('/api/upload', {
                 title,
                 content: contentInput,
@@ -73,6 +73,7 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
                     token: targetToken.address,
                     amount: parsedAmount.toString(),
                     sig,
+                    deadline,
                 }
             })
             onSent(data)

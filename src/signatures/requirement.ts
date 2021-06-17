@@ -2,7 +2,7 @@ import { recoverTypedSignature } from "eth-sig-util";
 import { BigNumberish, providers, utils } from "ethers";
 import { getEIP712Profile } from "../constant/EIP712Domain";
 import { StandardTokenProfile } from "../typing";
-import { checkDeadline } from "./utils";
+import { checkDeadline, getDeadline } from "./utils";
 
 const DataStructure = {
   Requirement: [
@@ -18,6 +18,7 @@ export async function signRequirement(
   targetToken: StandardTokenProfile,
   amount: BigNumberish
 ) {
+  const deadline = getDeadline();
   const sig = await signer._signTypedData(
     getEIP712Profile(targetToken.chainId),
     DataStructure,
@@ -25,10 +26,10 @@ export async function signRequirement(
       chainId: targetToken.chainId,
       token: targetToken.address,
       amount,
-      deadline: getDeadline(),
+      deadline,
     }
   );
-  return sig;
+  return { sig, deadline };
 }
 
 export function getRequirementSigner(
