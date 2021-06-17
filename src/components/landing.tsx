@@ -18,7 +18,7 @@ export default function LandingPage() {
     return <LandingPageContainer>
         <HeaderPart>
             <Text h1>
-                (Un)Lock with Hodl
+                HodLock - (Un)Lock with Hodl
             </Text>
             <Text h4 type="secondary">
                 Encrypt your article / snippet and set a Proof of Hodl (POH) requirement for content unlock!
