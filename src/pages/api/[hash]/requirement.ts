@@ -1,42 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { recoverTypedSignature } from "eth-sig-util";
 import { BigNumber } from "@ethersproject/bignumber";
 import { utils } from "ethers";
-import { getEIP712Profile } from "../../../constant/EIP712Domain";
 import { WorkerKV } from "../../../constant/kvclient";
 import { ZERO_ADDRESS } from "../../../constant";
-
-function recoverFromSig(
-  chainId: number,
-  token: string,
-  amount: string,
-  sig: string
-) {
-  const recoveredWallet = recoverTypedSignature({
-    data: {
-      types: {
-        EIP712Domain: [
-          { name: "name", type: "string" },
-          { name: "version", type: "string" },
-          { name: "chainId", type: "uint256" },
-          { name: "verifyingContract", type: "address" },
-        ],
-        Requirement: [
-          { name: "token", type: "address" },
-          { name: "amount", type: "uint256" },
-        ],
-      },
-      primaryType: "Requirement",
-      domain: getEIP712Profile(chainId),
-      message: {
-        token,
-        amount,
-      },
-    },
-    sig,
-  });
-  return utils.getAddress(recoveredWallet);
-}
+import { getRequirementSigner } from "../../../signatures/requirement";
 
 async function getRequirement(hash: string, res: NextApiResponse) {
   try {
@@ -52,11 +19,11 @@ async function setRequirement(
   body: any,
   res: NextApiResponse<any>
 ) {
-  const { networkId, token, amount, sig } = body;
+  const { networkId, token, amount, sig, deadline } = body;
   if (BigNumber.from(amount).eq(0)) {
     return res.status(400).json({ message: "Use DELETE instead" });
   }
-  const signer = recoverFromSig(networkId, token, amount, sig);
+  const signer = getRequirementSigner(networkId, token, amount, deadline, sig);
   const owner = await WorkerKV.getOwner(hash);
   console.info("owner:", owner);
   console.info("signer:", signer);
@@ -72,8 +39,14 @@ async function removeRequirement(
   body: any,
   res: NextApiResponse<any>
 ) {
-  const { networkId, sig } = body;
-  const signer = recoverFromSig(networkId, ZERO_ADDRESS, "0", sig);
+  const { networkId, sig, deadline } = body;
+  const signer = getRequirementSigner(
+    networkId,
+    ZERO_ADDRESS,
+    "0",
+    deadline,
+    sig
+  );
   const owner = await WorkerKV.getOwner(hash);
   console.info("owner:", owner);
   console.info("signer:", signer);

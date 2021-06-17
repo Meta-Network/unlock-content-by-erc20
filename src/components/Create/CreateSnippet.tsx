@@ -10,9 +10,9 @@ import { useBoolean } from "ahooks";
 import ReCAPTCHA from "react-google-recaptcha";
 import styled from "styled-components";
 import TokenSelector from "../TokenSelector";
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 import { useSigner } from "../../hooks/useSigner";
-import { getEIP712Profile } from "../../constant/EIP712Domain";
+import { signRequirement } from "../../signatures/requirement";
 
 type CreateSnippetParams = {
     // callback
@@ -62,19 +62,7 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
             if (!targetToken) throw new Error('No Token was selected')
             if (!isSignerReady(signer)) throw new Error('Please connect wallet')
 
-            const sig = await signer._signTypedData(
-                getEIP712Profile(targetToken.chainId),
-                {
-                    Requirement: [
-                        { name: "token", type: "address" },
-                        { name: "amount", type: "uint256" },
-                    ],
-                },
-                {
-                    token: targetToken.address,
-                    amount: parsedAmount
-                }
-            );
+            const sig = await signRequirement(signer, targetToken, parsedAmount);
             const { data } = await axios.post<UploadReturn>('/api/upload', {
                 title,
                 content: contentInput,
