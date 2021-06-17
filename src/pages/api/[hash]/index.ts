@@ -7,6 +7,8 @@ import { getEIP712Profile } from "../../../constant/EIP712Domain";
 import { WorkerKV } from "../../../constant/kvclient";
 import { providers } from "../../../constant/providers";
 import { decrypt } from "../../../encryption";
+import { getRequestUnlockSigner } from "../../../signatures/RequestUnlock";
+import { checkDeadline } from "../../../signatures/utils";
 import {
   EncryptedSnippet,
   Requirement,
@@ -14,38 +16,6 @@ import {
   UnlockedSnippet,
 } from "../../../typing";
 import { ipfsCat } from "../../../utils/ipfs";
-
-function recoverFromSig(
-  chainId: number,
-  hash: string,
-  token: string,
-  sig: string
-) {
-  const recoveredWallet = recoverTypedSignature({
-    data: {
-      types: {
-        EIP712Domain: [
-          { name: "name", type: "string" },
-          { name: "version", type: "string" },
-          { name: "chainId", type: "uint256" },
-          { name: "verifyingContract", type: "address" },
-        ],
-        RequestUnlock: [
-          { name: "token", type: "address" },
-          { name: "hash", type: "string" },
-        ],
-      },
-      primaryType: "RequestUnlock",
-      domain: getEIP712Profile(chainId),
-      message: {
-        token,
-        hash,
-      },
-    },
-    sig,
-  });
-  return utils.getAddress(recoveredWallet);
-}
 
 async function getBalance(
   chainId: number,
@@ -60,7 +30,7 @@ async function getBalance(
 }
 
 async function getPreviewOf(hash: string, res: NextApiResponse<any>) {
-  return getUnlockedContent(hash, "", 0, "", res);
+  return getUnlockedContent(hash, "", 0, "", 0, res);
 }
 
 async function permissionCheck(
@@ -103,12 +73,14 @@ async function getUnlockedContent(
   token: string,
   chainId: number,
   sig: string,
+  deadline: number,
   res: NextApiResponse<UnlockedSnippet | { message: string }>
 ) {
+  checkDeadline(deadline);
   const encryptedData = await ipfsCat<EncryptedSnippet>(hash);
   const requirement = await WorkerKV.getRequirement(hash);
 
-  const who = recoverFromSig(chainId, hash, token, sig);
+  const who = getRequestUnlockSigner(chainId, hash, token, sig, deadline);
   // do some check here
   await permissionCheck(requirement, encryptedData, chainId, who, token);
 
@@ -136,13 +108,20 @@ async function getUnlockedContent(
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { hash } = req.query as { hash: string };
-  const { sig, chainId, token } = req.body;
+  const { sig, chainId, token, deadline } = req.body;
 
   switch (req.method) {
     case "GET":
       return getPreviewOf(hash, res);
     case "POST":
-      return getUnlockedContent(hash, token, Number(chainId), sig, res);
+      return getUnlockedContent(
+        hash,
+        token,
+        Number(chainId),
+        sig,
+        deadline,
+        res
+      );
     default:
       return res.status(405).json({ message: "Method Not Allowed" });
   }

@@ -17,6 +17,7 @@ import { Requirement, SnipperForShowing } from "../../typing"
 import { ProfileCard } from "../requirement/ProfileCard"
 import useSWR from "swr"
 import { axiosSWRFetcher } from "../../utils"
+import { signUnlockReqeust } from "../../signatures/RequestUnlock"
 
 type UnlockNoticeParams = {
     onDecrypted: (data: SnipperForShowing) => any;
@@ -42,20 +43,9 @@ export default function UnlockNotice({ onDecrypted, onError, requirement, hash }
     const fetchData = useCallback(async () => {
         if (!isSignerReady(signer)) return;
         try {
-            const sig = await signer._signTypedData(getEIP712Profile(requirement.networkId),
-                {
-                    RequestUnlock: [
-                        { name: "token", type: "address" },
-                        { name: "hash", type: "string" },
-                    ],
-                }, 
-                {
-                    token: requirement.token,
-                    hash
-                }
-            )
+            const {sig, deadline} = await signUnlockReqeust(signer,requirement,hash)
             const { data } = await axios.post('/api/' + hash, {
-                sig, chainId: requirement.networkId, token: requirement.token
+                sig, deadline, chainId: requirement.networkId, token: requirement.token
             })
             onDecrypted(data)  
         } catch (error) {
