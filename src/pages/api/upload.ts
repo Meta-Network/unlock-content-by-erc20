@@ -12,8 +12,8 @@ async function upload(
   res: NextApiResponse<UploadReturn | { message: string }>
 ) {
   const privateKey = getRandomSecretKey();
-  const { content, title, captchaValue, requirement, deadline } = req.body;
-  const { networkId, token, amount, sig } = requirement;
+  const { content, title, captchaValue, requirement } = req.body;
+  const { networkId, token, amount, sig, deadline } = requirement;
   const owner = getRequirementSigner(
     Number(networkId),
     token,
