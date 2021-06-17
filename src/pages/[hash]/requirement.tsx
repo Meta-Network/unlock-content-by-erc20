@@ -17,6 +17,7 @@ import { useSigner } from "../../hooks/useSigner";
 import { getEIP712Profile } from "../../constant/EIP712Domain";
 import { useWallet } from "use-wallet";
 import dynamic from "next/dynamic";
+import { signRequirement } from "../../signatures/requirement";
 
 const GuideToConnect = dynamic(() => import('../../components/GuideToConnect'), { ssr: false });
 
@@ -52,17 +53,8 @@ export default function SetRequirementPage() {
         }
         if (!isSignerReady(signer)) return;
 
-        const sig = await signer._signTypedData(getEIP712Profile(targetToken.chainId),
-        {
-            Requirement: [
-                { name: "token", type: "address" },
-                { name: "amount", type: "uint256" },
-            ],
-        }, 
-        {
-            token: targetToken.address,
-            amount: minimumAmountToHodl
-        })
+        const {sig, deadline} = await signRequirement(signer, targetToken, minimumAmountToHodl);
+
 
         await axios.put(`/api/${hash}/requirement`, {
             version: '20210609',
@@ -71,6 +63,7 @@ export default function SetRequirementPage() {
             token: targetToken.address,
             amount: minimumAmountToHodl.toString(),
             sig,
+            deadline
         })
         alert('Requirement is set, the update will be good in 2 min.')
     }, [hash, targetToken, targetChainId, minimumAmountToHodl, signer])
