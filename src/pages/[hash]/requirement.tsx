@@ -69,7 +69,9 @@ export default function SetRequirementPage() {
     }, [hash, targetToken, targetChainId, minimumAmountToHodl, signer])
 
     if (wallet.status !== 'connected') {
-        return <GuideToConnect />
+        return <div>
+                <GuideToConnect />
+            </div>
     }
 
     return <SetRequirementContainer>
