@@ -3,13 +3,13 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { WorkerKV } from "../../constant/kvclient";
 import { encrypt, getRandomSecretKey } from "../../encryption";
 import { getRequirementSigner } from "../../signatures/requirement";
-import { Snippet, UploadReturn } from "../../typing";
+import { Snippet, PostMetadata } from "../../typing";
 import { uploadToPublic } from "../../utils/ipfs";
 import { verifyRecaptcha } from "../../utils/verifyRecaptcha";
 
 async function upload(
   req: NextApiRequest,
-  res: NextApiResponse<UploadReturn | { message: string }>
+  res: NextApiResponse<PostMetadata | { message: string }>
 ) {
   const privateKey = getRandomSecretKey();
   const { content, title, captchaValue, requirement } = req.body;
@@ -27,10 +27,11 @@ async function upload(
     return res.status(400).json({ message: "You failed the captcha" });
 
   const checksumedAuthorWallet = utils.getAddress(owner);
+  const timestamp = Date.now()
   const encrypted = encrypt(
     JSON.stringify({
       content,
-      timestamp: Date.now(),
+      timestamp,
       title,
       version: "20210604",
     } as Snippet),
@@ -47,7 +48,7 @@ async function upload(
     token,
     amount,
   });
-  return res.status(201).json({ encrypted, hash, privateKey });
+  return res.status(201).json({ encrypted, hash, privateKey, timestamp, requirement });
 }
 
 export default upload;

@@ -3,7 +3,7 @@ import axios from "axios";
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { Editor } from '@toast-ui/react-editor';
-import { StandardTokenProfile, UploadReturn } from "../../typing";
+import { StandardTokenProfile, PostMetadata } from "../../typing";
 import { useWallet } from "use-wallet";
 import { Button, Description, Grid, Input, User } from "@geist-ui/react";
 import { useBoolean } from "ahooks";
@@ -13,10 +13,11 @@ import TokenSelector from "../TokenSelector";
 import { utils } from "ethers";
 import { useSigner } from "../../hooks/useSigner";
 import { signRequirement } from "../../signatures/requirement";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 type CreateSnippetParams = {
     // callback
-    onSent: (obj: UploadReturn) => void
+    onSent: (obj: PostMetadata) => void
 }
 
 const CreateSnippetContainer = styled.div`
@@ -29,6 +30,7 @@ margin: 1rem 0;
 
 export default function CreateSnippet({ onSent }: CreateSnippetParams) {
     const wallet = useWallet()
+    const [posts, setPosts] = useLocalStorage<PostMetadata[]>('encrypted-posts', []);
     const { signer, isSignerReady } = useSigner()
     const [title, setTitle] = useState('')
     const [targetToken, setToken] = useState<StandardTokenProfile | null>(null)
@@ -63,7 +65,7 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
             if (!isSignerReady(signer)) throw new Error('Please connect wallet')
 
             const {sig, deadline} = await signRequirement(signer, targetToken, parsedAmount);
-            const { data } = await axios.post<UploadReturn>('/api/upload', {
+            const { data } = await axios.post<PostMetadata>('/api/upload', {
                 title,
                 content: contentInput,
                 owner: wallet.account,
@@ -76,6 +78,7 @@ export default function CreateSnippet({ onSent }: CreateSnippetParams) {
                     deadline,
                 }
             })
+            setPosts([data, ...posts]);
             onSent(data)
         } catch (error) {
             alert('Error happened: ' + error)

@@ -21,6 +21,14 @@ export type UploadReturn = {
   privateKey: string;
 };
 
+export type PostMetadata = {
+  encrypted: EncryptedSnippet;
+  requirement: Requirement;
+  hash: string;
+  privateKey: string;
+  timestamp: number;
+}
+
 export type UnlockedSnippet = Snippet & { owner: string };
 export type SnipperForShowing = UnlockedSnippet;
 
