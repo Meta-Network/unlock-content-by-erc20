@@ -5,7 +5,7 @@ import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { PostMetadata } from "../../typing";
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { ChainId, ChainIdToName } from "../../constant";
+import { Key, Delete } from '@geist-ui/react-icons'
 import ArrowLeftCircle from '@geist-ui/react-icons/arrowLeftCircle'
 import { useRouter } from "next/router";
 import { RequirementRow } from "../../components/MyPost/RequirementRow";
@@ -27,10 +27,10 @@ export default function MyPosts() {
                     <Tooltip text={p.encrypted.owner}>
                         <Text>{p.encrypted.owner.slice(0, 6)}...{p.encrypted.owner.slice(-4)} </Text>
                     </Tooltip>,
-                requirement: <RequirementRow requirement={p.requirement} />,
+                requirement: <RequirementRow requirement={p.requirement} hash={p.hash} />,
                 actions: <div>
-                    <Button type="error" onClick={() => alert(`Key is: ${p.privateKey}`)} auto>Get Key</Button>
-                    <Link href={`/${p.hash}/requirement`} target="_blank" color><Button auto>Modify</Button></Link>
+                    <Button onClick={() => alert(`Key is: ${p.privateKey}`)} auto icon={<Key />}></Button>
+                    <Button type="error" onClick={() => alert(`Key is: ${p.privateKey}`)} auto icon={<Delete />}></Button>
                 </div>
             }
         })
