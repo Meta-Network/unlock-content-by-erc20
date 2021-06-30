@@ -16,6 +16,6 @@ export function RequirementRow({ requirement, hash }: RequirementRowParams) {
     return <div>
         {utils.formatUnits(requirement.amount, tokenProfile.decimals)} {tokenProfile.symbol}
         <br />On {ChainIdToName[requirement.networkId as ChainId]}
-        <Link href={`/${hash}/requirement`} target="_blank" color>Change</Link>
+        <br /><Link href={`/${hash}/requirement`} target="_blank" color>Change</Link>
     </div>
 }
