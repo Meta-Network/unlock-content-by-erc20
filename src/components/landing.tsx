@@ -2,6 +2,7 @@ import styled from "styled-components"
 import React, { } from "react";
 import PlusSquare from '@geist-ui/react-icons/plusSquare'
 import QuestionCircle from '@geist-ui/react-icons/questionCircle'
+import Archive from '@geist-ui/react-icons/archive'
 import { Button, Text } from "@geist-ui/react";
 import Link from "next/link";
 
@@ -27,6 +28,9 @@ export default function LandingPage() {
             <ActionBtns>
                 <Link href="/create">
                     <Button type="secondary" icon={<PlusSquare />}>Create One</Button>
+                </Link>
+                <Link href="/my">
+                    <Button auto icon={<Archive />}>My Snippets</Button>
                 </Link>
                 <Link href="/faq">
                     <Button auto icon={<QuestionCircle />}>FAQ</Button>
