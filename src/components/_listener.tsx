@@ -14,10 +14,10 @@ export default function Listener() {
         if ((window as any).ethereum && (window as any).ethereum.chainId) {
             // setup the connect chainId if metamask was detected
             const initialChainId = (window as any).ethereum.chainId;
-            setChainId(Number(initialChainId));
+            setChainId(parseInt(initialChainId));
                 
             (window as any).ethereum.on('chainChanged', (newChainId: string) => {
-                setChainId(Number(newChainId) as ChainId)
+                setChainId(parseInt(newChainId) as ChainId)
             })
         }
     }, [setChainId])
