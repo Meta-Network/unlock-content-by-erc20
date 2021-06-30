@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import NextLink from "next/link";
-import React, {  } from 'react'
+import React, { } from 'react'
+import Archive from '@geist-ui/react-icons/archive'
 import { Button, Text, useClipboard, useToasts } from "@geist-ui/react";
 import styles from '../../styles/Home.module.css'
 import styled from 'styled-components';
@@ -37,8 +38,8 @@ export default function SnippetCreated({ uploadedHash, ...params }: Params) {
           You can share your snippet now or <a href={`/${uploadedHash}`}>just have a look 👀</a>
         </Text>
         <ActionsCard>
-          <NextLink href={`/${uploadedHash}/requirement`}>
-            <Button shadow >🔒 Check / Change requirement</Button>
+          <NextLink href="/my">
+            <Button shadow icon={<Archive />}>My published snippets</Button>
           </NextLink>
           <Button shadow type="secondary" auto onClick={() => {
             copy(fullUrl)
