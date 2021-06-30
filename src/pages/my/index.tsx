@@ -1,5 +1,5 @@
 import { Table, Text, Link, Button, Tooltip } from "@geist-ui/react";
-import React from "react";
+import React, { useCallback } from "react";
 import { useMemo } from "react";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { PostMetadata } from "../../typing";
@@ -19,7 +19,11 @@ padding: 2rem 0;
 
 export default function MyPosts() {
     const router = useRouter()
-    const [posts] = useLocalStorage<PostMetadata[]>('encrypted-posts', []);
+    const [posts, setPosts] = useLocalStorage<PostMetadata[]>('encrypted-posts', []);
+
+    const removePost = useCallback((hash: string) => {
+        setPosts(posts.filter(p => p.hash !== hash));
+    },[posts])
 
     const formattedList = useMemo(() => {
         return posts.map(p => {
@@ -39,7 +43,7 @@ export default function MyPosts() {
                         auto icon={<Key />} size="mini"
                     ></Button>
                     <Button type="error" size="mini"
-                        onClick={() => alert(`Key is: ${p.privateKey}`)}
+                        onClick={() => removePost(p.hash)}
                         auto icon={<Delete />}></Button>
                 </div>
             }
