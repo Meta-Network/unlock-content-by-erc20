@@ -8,6 +8,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { ChainId, ChainIdToName } from "../../constant";
 import ArrowLeftCircle from '@geist-ui/react-icons/arrowLeftCircle'
 import { useRouter } from "next/router";
+import { RequirementRow } from "../../components/MyPost/RequirementRow";
 dayjs.extend(relativeTime);
 
 
@@ -26,7 +27,11 @@ export default function MyPosts() {
                     <Tooltip text={p.encrypted.owner}>
                         <Text>{p.encrypted.owner.slice(0, 6)}...{p.encrypted.owner.slice(-4)} </Text>
                     </Tooltip>,
-                requirement: <> On {ChainIdToName[p.requirement.networkId as ChainId]}</>
+                requirement: <RequirementRow requirement={p.requirement} />,
+                actions: <div>
+                    <Button type="error" onClick={() => alert(`Key is: ${p.privateKey}`)} auto>Get Key</Button>
+                    <Link href={`/${p.hash}/requirement`} target="_blank" color><Button auto>Modify</Button></Link>
+                </div>
             }
         })
     }, [posts]);
@@ -38,6 +43,7 @@ export default function MyPosts() {
             <Table.Column prop="author" label="Wallet" />
             <Table.Column prop="requirement" label="requirement" />
             <Table.Column prop="timestamp" label="Published at" />
+            <Table.Column prop="actions" label="Actions" />
         </Table>
     </div>
 }
