@@ -71,7 +71,7 @@ export class IpfsClient {
       IpfsHash: string;
       PinSize: number;
       Timestamp: string;
-    }>(url, f, {
+    }>(url, JSON.parse(f), {
       headers: {
         pinata_api_key: process.env.PINATA_KEY,
         pinata_secret_api_key: process.env.PINATA_KEY_SECRET,
