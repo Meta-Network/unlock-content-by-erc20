@@ -15,7 +15,7 @@ import {
   Snippet,
   UnlockedSnippet,
 } from "../../../typing";
-import { ipfsCat } from "../../../utils/ipfs";
+import { IpfsClient } from "../../../utils/ipfs";
 
 async function getBalance(
   chainId: number,
@@ -77,7 +77,7 @@ async function getUnlockedContent(
   res: NextApiResponse<UnlockedSnippet | { message: string }>
 ) {
   checkDeadline(deadline);
-  const encryptedData = await ipfsCat<EncryptedSnippet>(hash);
+  const encryptedData = await IpfsClient.cat<EncryptedSnippet>(hash);
   const requirement = await WorkerKV.getRequirement(hash);
 
   const who = getRequestUnlockSigner(chainId, hash, token, sig, deadline);

@@ -4,7 +4,7 @@ import { WorkerKV } from "../../constant/kvclient";
 import { encrypt, getRandomSecretKey } from "../../encryption";
 import { getRequirementSigner } from "../../signatures/requirement";
 import { Snippet, PostMetadata } from "../../typing";
-import { uploadToPublic } from "../../utils/ipfs";
+import { IpfsClient } from "../../utils/ipfs";
 import { verifyRecaptcha } from "../../utils/verifyRecaptcha";
 
 async function upload(
@@ -27,7 +27,7 @@ async function upload(
     return res.status(400).json({ message: "You failed the captcha" });
 
   const checksumedAuthorWallet = utils.getAddress(owner);
-  const timestamp = Date.now()
+  const timestamp = Date.now();
   const encrypted = encrypt(
     JSON.stringify({
       content,
@@ -38,7 +38,7 @@ async function upload(
     privateKey
   );
   encrypted.owner = checksumedAuthorWallet;
-  const hash = await uploadToPublic(JSON.stringify(encrypted));
+  const hash = await IpfsClient.upload(JSON.stringify(encrypted));
   await WorkerKV.setSecretKey(hash, privateKey);
   await WorkerKV.setOwner(hash, owner);
   await WorkerKV.setRequirement(hash, {
@@ -48,7 +48,9 @@ async function upload(
     token,
     amount,
   });
-  return res.status(201).json({ encrypted, hash, privateKey, timestamp, requirement });
+  return res
+    .status(201)
+    .json({ encrypted, hash, privateKey, timestamp, requirement });
 }
 
 export default upload;
